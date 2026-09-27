@@ -350,6 +350,18 @@ body.on-line .fab{opacity:0;pointer-events:none}
 @media (max-width:420px){.craft{grid-template-columns:1fr}}
 .others{margin-top:28px;border-top:1px solid var(--line);padding-top:22px;display:grid;gap:10px}
 .others-lead{color:var(--ink-2);font-size:14px}
+/* price ticket for an item on the conveyor */
+.belt-item{border:none;background:none;padding:0;font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.belt-item:focus-visible .belt-tag{outline:2px solid var(--accent);outline-offset:3px}
+.belt-item[aria-pressed="true"] .belt-tag{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.belt-item[aria-pressed="true"] .belt-tag small{color:var(--bg);opacity:.7}
+.belt-hint{display:inline-flex;align-items:center;gap:6px}
+.tag.belt-pop{position:relative;right:auto;top:auto;z-index:1;width:auto;max-width:560px;margin:18px auto 0;display:grid;grid-template-columns:132px minmax(0,1fr);gap:4px 22px;align-items:start}
+.belt-pop .pic{grid-row:1/span 6;display:grid;place-items:center;height:132px;margin-top:12px;background:var(--linen);border-radius:10px}
+.belt-pop .pic img{max-width:86%;max-height:86%;object-fit:contain}
+.belt-pop .tag-top,.belt-pop h3,.belt-pop .price,.belt-pop .ex,.belt-pop .sub,.belt-pop .actions{grid-column:2}
+.belt-pop .actions{flex-wrap:wrap}
+@media (max-width:520px){.tag.belt-pop{grid-template-columns:88px minmax(0,1fr);gap:4px 14px;padding:26px 18px 18px}.belt-pop .pic{height:88px}.belt-pop .actions{grid-column:1/-1}.belt-pop h3{font-size:20px}}
 /* other items: a cleaning-shop conveyor carrying tagged items */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .belt{--oh:150px;position:relative;overflow:hidden;padding-top:10px;margin-top:6px}
@@ -359,12 +371,12 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .belt-rail{position:absolute;left:0;right:0;top:calc(var(--oh) + 10px);height:16px;border-radius:8px;overflow:hidden;background:#D9D1C7;box-shadow:0 8px 14px -8px rgba(50,32,15,.35)}
 .belt-rail::before{content:"";position:absolute;top:0;bottom:0;left:0;width:calc(100% + 48px);background:repeating-linear-gradient(90deg,#D9D1C7 0 22px,#C9C0B5 22px 24px);animation:beltLines 1.2s linear infinite}
 .belt-track{display:flex;gap:26px;width:max-content;padding-inline:13px;animation:beltMove 42s linear infinite}
-.belt:hover .belt-track,.belt.hold .belt-track,.belt.idle .belt-track,.belt.idle .belt-rail::before,.belt.idle .belt-tag{animation-play-state:paused}
+.belt:hover .belt-track,.belt.hold .belt-track,.belt.hold-pop .belt-track,.belt.idle .belt-track,.belt.idle .belt-rail::before,.belt.idle .belt-tag{animation-play-state:paused}
 .belt-item{flex:0 0 190px;display:grid;justify-items:center}
 .belt-obj{height:var(--oh);width:100%;display:grid;place-items:end center}
 .belt-obj img{max-width:172px;max-height:calc(var(--oh) - 10px);width:auto;height:auto;object-fit:contain;filter:drop-shadow(0 14px 10px rgba(50,32,15,.25));transition:transform .35s}
 .belt-item:hover .belt-obj img{transform:translateY(-10px)}
-.belt-tag{position:relative;margin-top:30px;margin-bottom:6px;background:var(--surface);border:1px solid var(--line);border-radius:4px 4px 10px 10px;padding:14px 14px 8px;font-size:13px;font-weight:500;text-align:center;min-width:120px;box-shadow:0 8px 16px -12px rgba(50,32,15,.4);transform-origin:50% -26px;animation:tagSway 3.2s ease-in-out infinite;animation-delay:calc(var(--i) * -.4s)}
+.belt-tag{display:block;position:relative;margin-top:30px;margin-bottom:6px;background:var(--surface);border:1px solid var(--line);border-radius:4px 4px 10px 10px;padding:14px 14px 8px;font-size:13px;font-weight:500;text-align:center;min-width:120px;box-shadow:0 8px 16px -12px rgba(50,32,15,.4);transform-origin:50% -26px;animation:tagSway 3.2s ease-in-out infinite;animation-delay:calc(var(--i) * -.4s)}
 .belt-tag::before{content:"";position:absolute;left:50%;top:5px;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
 .belt-tag::after{content:"";position:absolute;left:50%;top:-26px;width:1px;height:31px;background:var(--muted)}
 .belt-tag small{display:block;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);font-weight:400}
@@ -751,7 +763,7 @@ window.DBG=(function(){
     <div class="others reveal">
       <p class="eyebrow">Others</p>
       <p class="others-lead">衣類のほかにも、さまざまなお品物のクリーニングを手がけています。お気軽にご相談ください。</p>
-      <div class="belt" data-belt></div><p class="belt-note">カーソルを当てる・指で触れると止まります</p>
+      <div class="belt" data-belt></div><p class="belt-note">お品物を押すと料金が見られます（カーソルを当てる・指で触れると止まります）</p>
     </div>
   </div>
 
@@ -812,7 +824,7 @@ window.DBG=(function(){
     <div class="others">
       <p class="eyebrow">Others</p>
       <p class="others-lead">その他さまざまな取り扱い。ご気軽にご相談ください。</p>
-      <div class="belt" data-belt></div><p class="belt-note">カーソルを当てる・指で触れると止まります</p>
+      <div class="belt" data-belt></div><p class="belt-note">お品物を押すと料金が見られます（カーソルを当てる・指で触れると止まります）</p>
     </div>
   </div>
   <div class="wrap" style="padding-bottom:40px">
@@ -1201,10 +1213,9 @@ $('#craftAbout').innerHTML = craftHTML();
 })();
 const OTHER_IMG = {'布団':'futon','ジュータン・カーペット':'carpet','着物':'kimono','皮革製品':'leather','ぬいぐるみ':'toy','ブランドバッグ・財布':'bag','靴・ブーツ':'shoes'};
 function beltHTML(){
-  const one=(o,i)=>'<div class="belt-item" style="--i:'+i+'"><div class="belt-obj"><img src="images/other-'+OTHER_IMG[o]+'.webp" alt="" loading="lazy" decoding="async"></div><div class="belt-tag"><small>No.'+String(i+1).padStart(3,'0')+'</small>'+o+'</div></div>';
-  const items=OTHERS.map(one).join('');
-  // two copies so the belt loops without a seam; screen readers get the plain list
-  return '<ul class="sr-only">'+OTHERS.map(o=>'<li>'+o+'</li>').join('')+'</ul><div class="belt-rail" aria-hidden="true"></div><div class="belt-track" aria-hidden="true">'+items+items+'</div>';
+  const one=(o,i,dup)=>'<button type="button" class="belt-item" data-i="'+i+'" style="--i:'+i+'"'+(dup?' tabindex="-1" aria-hidden="true"':' aria-pressed="false"')+'><span class="belt-obj"><img src="images/other-'+OTHER_IMG[o]+'.webp" alt="" loading="lazy" decoding="async"></span><span class="belt-tag"><small>No.'+String(i+1).padStart(3,'0')+'</small>'+o+'</span></button>';
+  // two copies so the belt loops without a seam
+  return '<div class="belt-rail" aria-hidden="true"></div><div class="belt-track" role="group" aria-label="その他のお品物（押すと料金）">'+OTHERS.map((o,i)=>one(o,i,false)).join('')+OTHERS.map((o,i)=>one(o,i,true)).join('')+'</div>';
 }
 document.querySelectorAll('[data-belt]').forEach(el=>{
   el.innerHTML=beltHTML();
@@ -1212,7 +1223,41 @@ document.querySelectorAll('[data-belt]').forEach(el=>{
   el.addEventListener('touchend',()=>el.classList.remove('hold'),{passive:true});
   el.addEventListener('touchcancel',()=>el.classList.remove('hold'),{passive:true});
   new IntersectionObserver(es=>el.classList.toggle('idle',!es[0].isIntersecting)).observe(el);
+  el.addEventListener('click', e=>{ const b=e.target.closest('.belt-item'); if(b) openItemPrice(el, +b.dataset.i); });
 });
+/* Prices for the conveyor items. Fill in [税込, 税抜] (or a text like '¥3,300〜') when known;
+   null shows 店頭でお見積り. cat = the price-page section to open. */
+const OTHER_PRICE = {
+  '布団':                  {price:null, cat:'cat-bed'},
+  'ジュータン・カーペット': {price:null},
+  '着物':                  {price:null},
+  '皮革製品':              {price:null},
+  'ぬいぐるみ':            {price:null},
+  'ブランドバッグ・財布':   {price:null},
+  '靴・ブーツ':            {price:null}
+};
+function openItemPrice(belt, i){
+  const name=OTHERS[i], info=OTHER_PRICE[name]||{}, host=belt.parentNode;
+  host.querySelectorAll('.belt-pop').forEach(n=>n.remove());
+  belt.querySelectorAll('.belt-item[aria-pressed]').forEach(b=>b.setAttribute('aria-pressed', String(+b.dataset.i===i)));
+  belt.classList.add('hold-pop');
+  const p=info.price, priceHTML = Array.isArray(p) ? '<div class="price"><strong>'+yen(p[0])+'</strong><small>税込</small></div><p class="ex">税抜 '+yen(p[1])+'</p>'
+    : typeof p==='string' ? '<div class="price"><strong style="font-size:30px">'+p+'</strong><small>税込</small></div>'
+    : '<div class="price"><strong style="font-size:26px;font-family:var(--f-display)">店頭でお見積り</strong></div>';
+  const pop=document.createElement('div'); pop.className='tag belt-pop'; pop.setAttribute('role','dialog'); pop.setAttribute('aria-label', name+'の料金');
+  pop.innerHTML='<button class="close" aria-label="閉じる">×</button>'+
+    '<div class="pic"><img src="images/other-'+OTHER_IMG[name]+'.webp" alt=""></div>'+
+    '<div class="tag-top"><span>No. '+String(i+1).padStart(3,'0')+'</span><span>その他のお品物</span></div>'+
+    '<h3>'+name+'</h3>'+priceHTML+
+    '<p class="sub">料金はお品物の大きさや素材によって異なります。お近くの店舗でお気軽にご相談ください。</p>'+
+    '<div class="actions"><a class="btn sm" href="#price"'+(info.cat?' data-go="'+info.cat+'"':'')+'>料金一覧へ</a><a class="btn ghost sm" href="#stores">店舗を探す</a></div>';
+  belt.nextElementSibling.after(pop);
+  const close=()=>{ pop.remove(); belt.classList.remove('hold-pop'); belt.querySelectorAll('.belt-item[aria-pressed]').forEach(b=>b.setAttribute('aria-pressed','false')); };
+  pop.querySelector('.close').addEventListener('click', close);
+  pop.querySelectorAll('a').forEach(a=>a.addEventListener('click', close));
+  if(pop.getBoundingClientRect().bottom>innerHeight) pop.scrollIntoView({block:'nearest', behavior: reduce?'auto':'smooth'});
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.belt-pop .close').forEach(b=>b.click()); });
 
 function newsItem(n,i,prefix){
   return '<li><button class="news-row" aria-expanded="false" aria-controls="'+prefix+i+'"><span class="n-date">'+n.d+'</span><span class="n-cat">'+n.c+'</span><span class="n-title">'+n.t+'</span><span class="n-plus">+</span></button><div class="n-body" id="'+prefix+i+'" hidden>'+n.b+'</div></li>';
