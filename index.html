@@ -412,7 +412,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .intro .lead{color:var(--muted);font-size:14px;letter-spacing:.06em}
 .intro-l{display:block;animation:introIn 1.4s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
 @keyframes introIn{from{opacity:0;filter:blur(8px);transform:translateY(14px)}to{opacity:1;filter:none;transform:none}}
-.intro-scroll{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);display:grid;justify-items:center;gap:10px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+.intro-scroll{position:absolute;left:0;right:0;bottom:32px;width:max-content;margin-inline:auto;display:grid;justify-items:center;gap:10px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
 .intro-scroll i{display:block;width:1px;height:44px;background:linear-gradient(var(--muted),transparent);transform-origin:top;animation:scrollLine 2.2s ease-in-out infinite}
 @keyframes scrollLine{0%{transform:scaleY(0);opacity:1}60%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
 .stage canvas{transition:none}
