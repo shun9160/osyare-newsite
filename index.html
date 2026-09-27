@@ -181,7 +181,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 /* store map (top page) */
 .smap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(18px,3vw,36px);align-items:start}
 .smap-map{position:relative;background:var(--linen);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.smap-map svg{display:block;width:100%;height:auto}
+.smap-map svg{display:block;width:100%;height:auto;cursor:pointer}
 .smap-river{fill:none;stroke:color-mix(in srgb,var(--steam),#7FA6BA 45%);stroke-width:9;stroke-linecap:round}
 .smap-rail{fill:none;stroke:var(--muted);stroke-width:2.2}
 .smap-tie{fill:none;stroke:var(--linen);stroke-width:1.4;stroke-dasharray:3 7}
@@ -189,7 +189,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .smap-small{font-size:9.5px;fill:var(--muted);letter-spacing:.1em}
 .smap-draw{stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset 2s ease}
 .smap:not(.play) .smap-draw{stroke-dashoffset:1;transition:none}
-.smap-pin{cursor:pointer;outline:none;transition:opacity .4s}
+.smap-pin{cursor:pointer;outline:none;transition:opacity .4s;text-decoration:none}
 .smap-pin .drop{transition:transform .6s cubic-bezier(.3,1.6,.5,1),opacity .4s;transform-box:fill-box;transform-origin:50% 100%}
 .smap:not(.play) .smap-pin .drop{transform:translateY(-30px);opacity:0;transition:none}
 .smap-pin .hit{fill:transparent}
@@ -219,6 +219,8 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .smap-list .open-now{font-size:12px;display:flex;align-items:center;gap:6px;color:var(--ink-2);flex:none}
 .smap-list .open-now i{width:8px;height:8px;border-radius:50%;background:#7FA86B}
 .smap-list .open-now.closed i{background:var(--muted)}
+.smap-full .smap-list{max-height:none}
+.smap-full{margin-bottom:48px}
 @media (max-width:860px){.smap{grid-template-columns:1fr}.smap-list{max-height:none}}
 @media (prefers-reduced-motion:reduce){.smap-draw,.smap-pin .drop{transition:none}.smap-pin.open .halo{animation:none}}
 .stores{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
@@ -571,6 +573,8 @@ img{max-width:100%}
 @keyframes ldChar{from{opacity:0;transform:translateY(10px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 @media (prefers-reduced-motion:reduce){.ld-drum::after,.ld-wave,.ld-drum i,.ld-name span,.ld-sub{animation:none}.ld-drum i{display:none}.ld-water{transition:none}}
 </style>
+<link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous">
+<link rel="preload" as="image" href="images/shirt.webp"><link rel="preload" as="image" href="images/suit.webp"><link rel="preload" as="image" href="images/knit.webp"><link rel="preload" as="image" href="images/down.webp"><link rel="preload" as="image" href="images/coat.webp">
 <script>document.documentElement.classList.add('is-loading')</script>
 </head>
 <body>
@@ -586,7 +590,9 @@ img{max-width:100%}
 <script>
 (function(){
   var root=document.documentElement, el=document.getElementById('loader'), water=el.querySelector('.ld-water');
-  var start=Date.now(), MIN=1800, MAX=8000, finished=false;
+  var start=Date.now(), MIN=1800, MAX=15000, finished=false, waits=[];
+  // parts of the page that must be ready before it is shown (the 3D rack registers itself)
+  window.__loaderWait=function(p){ waits.push(p); };
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ water.style.setProperty('--lv','72%'); }); });
   function finish(){
     if(finished) return; finished=true;
@@ -596,7 +602,10 @@ img{max-width:100%}
       setTimeout(function(){ el.remove(); }, 800);
     }, 650);
   }
-  window.addEventListener('load', function(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); });
+  window.addEventListener('load', function(){
+    var fonts=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
+    Promise.all([fonts].concat(waits)).then(function(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }, finish);
+  });
   setTimeout(finish, MAX);
 })();
 </script>
@@ -703,14 +712,7 @@ img{max-width:100%}
       <div><p class="eyebrow">Stores</p><h2>店舗情報</h2></div>
       <a class="btn ghost sm" href="#stores">11店舗すべて見る</a>
     </div>
-    <div class="smap play" id="smap">
-      <div class="smap-map"><svg id="smapSvg" viewBox="0 0 600 470" role="img" aria-label="店舗の位置を示すエリア地図"></svg><span class="smap-note">位置はおおよそのイメージです</span></div>
-      <div class="smap-side">
-        <div class="smap-filter" id="smapFilter" role="group" aria-label="市で絞り込む"></div>
-        <div class="smap-card" id="smapCard" aria-live="polite"></div>
-        <ul class="smap-list" id="smapList"></ul>
-      </div>
-    </div>
+    <div class="smap play" data-smap></div>
   </div>
 </section>
 
@@ -806,8 +808,7 @@ img{max-width:100%}
     <p>神奈川県の海老名・藤沢・厚木・座間・大和に11店舗。各店舗のお得な情報は、店舗ページの「店舗ページ」からご覧いただけます。</p></div>
   </div>
   <div class="wrap sec" style="padding-top:40px">
-    <div class="filter" id="storeFilter"></div>
-    <div class="stores" id="storesAll"></div>
+    <div class="smap smap-full play" data-smap></div>
     <div class="office">
       <p class="eyebrow">Head office</p>
       <h3>本事務所</h3>
@@ -917,7 +918,7 @@ img{max-width:100%}
 
 <a class="btn line fab" href="https://liff.line.me/1645278921-kWRPP32q/?accountId=001nioss" target="_blank" rel="noopener"><svg class="line-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.6 2 11c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.5s5.9-3.5 8-6c1.5-1.6 2-3.2 2-4.8C22 6.6 17.5 3 12 3z"/></svg>LINE会員登録</a>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
 <script>
 (function(){
 "use strict";
@@ -1146,64 +1147,62 @@ function openState(s){
 function storeCard(s,i){
   return '<article class="store reveal"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="area">'+s.city+'</span>'+openState(s)+'</div><h3>'+s.name+'</h3>'+
   '<dl><dt>住所</dt><dd>〒'+s.zip+'<br>'+s.addr+'</dd><dt>電話</dt><dd class="tel">'+s.tel+'</dd><dt>平日</dt><dd class="hours">'+s.wkText+'</dd><dt>休日</dt><dd class="hours">'+s.holText+'</dd><dt>定休日</dt><dd>'+s.offText+'</dd></dl>'+
-  '<div class="s-foot"><a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.addr.split(' ')[0]+' おしゃれ倶楽部 '+s.name)+'">地図</a>'+
+  '<div class="s-foot"><a class="btn ghost sm" target="_blank" rel="noopener" href="'+mapsURL(s)+'">Googleマップ</a>'+
   '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.osyareclub.com/tenpo/'+s.slug+'/">店舗ページ</a>'+
   '<button class="btn ghost sm copy" data-copy="'+s.tel+'" data-label="電話番号をコピー">電話番号をコピー</button></div></article>';
 }
-/* store map (top page) */
-(function(){
-  const svgEl=$('#smapSvg'); if(!svgEl) return;
-  const LL={ebinaeki:[35.4510,139.3905],rokkaieki:[35.3745,139.4665],shounandai:[35.3935,139.4720],mirokuji:[35.3510,139.4745],zenkou:[35.3620,139.4640],atsugiasahi:[35.4320,139.3700],atsugitomuro:[35.4235,139.3390],soubudai:[35.5045,139.4040],zamairiya:[35.4760,139.3950],yamatochuou:[35.4700,139.4600],senbonzakura:[35.4300,139.4560]};
+/* store map: used on the top page and the stores page */
+const MAP_LL={ebinaeki:[35.4510,139.3905],rokkaieki:[35.3745,139.4665],shounandai:[35.3935,139.4720],mirokuji:[35.3510,139.4745],zenkou:[35.3620,139.4640],atsugiasahi:[35.4320,139.3700],atsugitomuro:[35.4235,139.3390],soubudai:[35.5045,139.4040],zamairiya:[35.4760,139.3950],yamatochuou:[35.4700,139.4600],senbonzakura:[35.4300,139.4560]};
+const mapsURL = s => 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.addr.split(' ')[0]+' おしゃれ倶楽部 '+s.name);
+const MAP_BASE = (()=>{
   const X=lon=>(lon-139.305)/(139.505-139.305)*600, Y=lat=>(35.525-lat)/(35.525-35.335)*470;
   const line=a=>'M'+a.map(p=>X(p[1]).toFixed(1)+' '+Y(p[0]).toFixed(1)).join('L');
   const odawara=[[35.530,139.418],[35.5045,139.4045],[35.4870,139.3990],[35.4760,139.3950],[35.4520,139.3920],[35.4400,139.3640],[35.4250,139.3420],[35.405,139.318]];
   const enoshima=[[35.530,139.470],[35.4700,139.4610],[35.4480,139.4600],[35.4300,139.4600],[35.4110,139.4670],[35.3940,139.4680],[35.3750,139.4660],[35.3630,139.4650],[35.345,139.478],[35.332,139.485]];
   const river=[[35.530,139.372],[35.500,139.380],[35.470,139.377],[35.445,139.378],[35.420,139.383],[35.390,139.378],[35.360,139.385],[35.332,139.389]];
   const cities=[['座間',35.498,139.418],['海老名',35.458,139.405],['厚木',35.447,139.318],['大和',35.488,139.470],['藤沢',35.382,139.482]];
-  const area=s=>s.addr.replace(/^神奈川県.+?市/,'').replace(/\s.*$/,'').replace(/(丁目).*$/,'$1').replace(/\d[\d-]*$/,'');
-  let svg='<path class="smap-river smap-draw" pathLength="1" d="'+line(river)+'"/>'+
+  const base='<path class="smap-river smap-draw" pathLength="1" d="'+line(river)+'"/>'+
     '<text class="smap-small" x="'+X(139.372).toFixed(0)+'" y="'+Y(35.395).toFixed(0)+'" transform="rotate(-84 '+X(139.372).toFixed(0)+' '+Y(35.395).toFixed(0)+')">相模川</text>'+
     cities.map(c=>'<text class="smap-city" x="'+X(c[2]).toFixed(0)+'" y="'+Y(c[1]).toFixed(0)+'">'+c[0]+'</text>').join('')+
     [odawara,enoshima].map(r=>'<path class="smap-rail smap-draw" pathLength="1" d="'+line(r)+'"/><path class="smap-tie" d="'+line(r)+'"/>').join('')+
     '<text class="smap-small" x="'+X(139.330).toFixed(0)+'" y="'+Y(35.412).toFixed(0)+'">小田急小田原線</text>'+
     '<text class="smap-small" x="'+X(139.472).toFixed(0)+'" y="'+Y(35.505).toFixed(0)+'">小田急江ノ島線</text>';
-  svg+=STORES.map((s,i)=>{ const ll=LL[s.slug], x=X(ll[1]).toFixed(1), y=Y(ll[0]).toFixed(1), open=openState(s).includes('営業時間内');
-    return '<g class="smap-pin'+(open?' open':'')+'" data-i="'+i+'" tabindex="0" role="button" aria-label="'+s.name+'" transform="translate('+x+' '+y+')"><g class="drop" style="transition-delay:'+(.8+i*.09).toFixed(2)+'s">'+
+  return {X,Y,base};
+})();
+function initStoreMap(root){
+  const {X,Y,base}=MAP_BASE;
+  const area=s=>s.addr.replace(/^神奈川県.+?市/,'').replace(/\s.*$/,'').replace(/(丁目).*$/,'$1').replace(/\d[\d-]*$/,'');
+  // each pin is a real link to that store on Google Maps
+  const pinsSVG=STORES.map((s,i)=>{ const ll=MAP_LL[s.slug], x=X(ll[1]).toFixed(1), y=Y(ll[0]).toFixed(1), open=openState(s).includes('営業時間内'), left=ll[1]>139.44;
+    return '<a class="smap-pin'+(open?' open':'')+'" data-i="'+i+'" href="'+mapsURL(s)+'" target="_blank" rel="noopener" aria-label="'+s.name+'をGoogleマップで開く" transform="translate('+x+' '+y+')"><g class="drop" style="transition-delay:'+(.8+i*.09).toFixed(2)+'s">'+
       '<circle class="hit" cx="0" cy="-15" r="22"/><circle class="halo" cx="0" cy="-17" r="9"/><path class="head" d="M0 0C-3-6-10-10-10-17a10 10 0 0 1 20 0C10-10 3-6 0 0z"/><circle class="dot" cx="0" cy="-17" r="3.6"/>'+
-      '<text class="lbl" x="'+(ll[1]>139.44?-13:13)+'" y="-13" text-anchor="'+(ll[1]>139.44?'end':'start')+'">'+s.name+'</text></g></g>'; }).join('');
-  svgEl.innerHTML=svg;
-  const pins=[...svgEl.querySelectorAll('.smap-pin')];
+      '<text class="lbl" x="'+(left?-13:13)+'" y="-13" text-anchor="'+(left?'end':'start')+'">'+s.name+'</text></g></a>'; }).join('');
+  root.innerHTML='<div class="smap-map"><svg viewBox="0 0 600 470" role="group" aria-label="店舗の位置を示すエリア地図">'+base+pinsSVG+'</svg>'+
+    '<span class="smap-note">ピンを押すとGoogleマップが開きます（位置はおおよそ）</span></div>'+
+    '<div class="smap-side"><div class="smap-filter" role="group" aria-label="市で絞り込む"></div><div class="smap-card" aria-live="polite"></div><ul class="smap-list"></ul></div>';
+  const q=c=>root.querySelector(c), svgEl=q('svg'), pins=[...svgEl.querySelectorAll('.smap-pin')];
   const CITIES=['すべて',...new Set(STORES.map(s=>s.city))]; let city='すべて', sel=0;
   function render(){
-    $('#smapFilter').innerHTML=CITIES.map(c=>'<button type="button" aria-pressed="'+(c===city)+'">'+c+'</button>').join('');
+    q('.smap-filter').innerHTML=CITIES.map(c=>'<button type="button" aria-pressed="'+(c===city)+'">'+c+(c==='すべて'?'':'（'+STORES.filter(s=>s.city===c).length+'）')+'</button>').join('');
     const list=STORES.map((s,i)=>[s,i]).filter(([s])=>city==='すべて'||s.city===city);
     if(!list.some(([,i])=>i===sel)) sel=list[0][1];
-    $('#smapList').innerHTML=list.map(([s,i])=>'<li><button type="button" data-i="'+i+'" aria-current="'+(i===sel)+'"><span>'+s.name+'<small>'+area(s)+'</small></span>'+openState(s)+'</button></li>').join('');
+    q('.smap-list').innerHTML=list.map(([s,i])=>'<li><button type="button" data-i="'+i+'" aria-current="'+(i===sel)+'"><span>'+s.name+'<small>'+area(s)+'</small></span>'+openState(s)+'</button></li>').join('');
     pins.forEach(p=>{ const i=+p.dataset.i; p.classList.toggle('sel',i===sel); p.classList.toggle('dim',!(city==='すべて'||STORES[i].city===city)); });
-    $('#smapCard').innerHTML=storeCard(STORES[sel]).replace(' reveal','');
+    q('.smap-card').innerHTML=storeCard(STORES[sel]).replace(' reveal','');
   }
   const pick=i=>{ sel=i; if(city!=='すべて'&&STORES[i].city!==city) city='すべて'; render(); };
-  $('#smapFilter').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ city=b.textContent; render(); } });
-  $('#smapList').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) pick(+b.dataset.i); });
-  svgEl.addEventListener('click',e=>{ const p=e.target.closest('.smap-pin'); if(p) pick(+p.dataset.i); });
-  svgEl.addEventListener('keydown',e=>{ const p=e.target.closest('.smap-pin'); if(p&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); pick(+p.dataset.i); } });
+  q('.smap-filter').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ city=CITIES[[...b.parentNode.children].indexOf(b)]; render(); } });
+  q('.smap-list').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) pick(+b.dataset.i); });
+  // a pin opens Google Maps (native link) and also shows that store's card here
+  svgEl.addEventListener('click',e=>{ const p=e.target.closest('.smap-pin'); if(p){ pick(+p.dataset.i); return; } window.open(mapsURL(STORES[sel]),'_blank','noopener'); });
   render();
-  // the pins drop in when the map first comes into view
-  const box=$('#smap');
-  if(!reduce && box.getBoundingClientRect().top>innerHeight){
-    box.classList.remove('play');
-    const io=new IntersectionObserver(es=>{ if(es[0].isIntersecting){ box.classList.add('play'); io.disconnect(); } },{threshold:.25});
-    io.observe(box);
+  if(!reduce && root.getBoundingClientRect().top>innerHeight){
+    root.classList.remove('play');
+    const io=new IntersectionObserver(es=>{ if(es[0].isIntersecting){ root.classList.add('play'); io.disconnect(); } },{threshold:.25});
+    io.observe(root);
   }
-})();
-let storeCity = 'すべて';
-function renderStores(){
-  const cities = ['すべて',...new Set(STORES.map(s=>s.city))];
-  $('#storeFilter').innerHTML = cities.map(t=>'<button class="chip" aria-pressed="'+(t===storeCity)+'">'+t+(t==='すべて'?'':'（'+STORES.filter(s=>s.city===t).length+'）')+'</button>').join('');
-  $('#storeFilter').querySelectorAll('.chip').forEach((b,i) => b.addEventListener('click', () => { storeCity=cities[i]; renderStores(); }));
-  $('#storesAll').innerHTML = STORES.filter(s=>storeCity==='すべて'||s.city===storeCity).map(storeCard).join('');
 }
-renderStores();
+document.querySelectorAll('[data-smap]').forEach(initStoreMap);
 $('#f-store').innerHTML = '<option>選択してください</option>' + STORES.map(s=>'<option>'+s.name+'</option>').join('');
 
 async function copyText(txt, btn, label){
@@ -1354,6 +1353,10 @@ function initRack(){
     return api;
   }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  let pending=GARMENTS.length, markReady;
+  const ready=new Promise(r=>markReady=r);
+  if(window.__loaderWait) window.__loaderWait(ready);
+  const garmentDone=()=>{ if(--pending>0) return; try{ renderer.compile(scene,camera); }catch(e){} requestAnimationFrame(()=>markReady()); };
   stage.insertBefore(renderer.domElement, stage.firstChild);
   const scene = new T.Scene();
   const camera = new T.PerspectiveCamera(36, 1, 0.1, 80);
@@ -1391,8 +1394,9 @@ function initRack(){
 
   /* textures helpers */
   function normalCanvas(img){
-    const w=img.width, h=img.height, c=document.createElement('canvas'); c.width=w; c.height=h;
-    const x=c.getContext('2d'); x.drawImage(img,0,0);
+    const sc=Math.min(1, 256/Math.max(img.width,img.height));
+    const w=Math.round(img.width*sc), h=Math.round(img.height*sc), c=document.createElement('canvas'); c.width=w; c.height=h;
+    const x=c.getContext('2d'); x.drawImage(img,0,0,w,h);
     const src=x.getImageData(0,0,w,h).data, out=x.createImageData(w,h), o=out.data, L=new Float32Array(w*h);
     for(let i=0;i<w*h;i++) L[i]=(src[i*4]*.3+src[i*4+1]*.59+src[i*4+2]*.11)/255;
     const at=(x,y)=>L[Math.min(h-1,Math.max(0,y))*w+Math.min(w-1,Math.max(0,x))];
@@ -1478,7 +1482,9 @@ function initRack(){
       const back=new T.Mesh(surface(-1), morph(new T.MeshStandardMaterial({map:tex,color:0xa9a29a,transparent:true,alphaTest:.35,roughness:.95,side:T.BackSide}), it.uBend, it.uFade));
       [front,back].forEach(m=>{ m.userData.index=i; hold.add(m); });
       it.mats=[front.material, back.material];
+      garmentDone();
     };
+    img.onerror=garmentDone;
     img.src=g.img;
     return it;
   });
