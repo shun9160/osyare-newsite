@@ -53,6 +53,7 @@ p{margin:0}
 
 /* header */
 .hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+@media (max-width:760px),(pointer:coarse){.hdr{backdrop-filter:none;-webkit-backdrop-filter:none;background:color-mix(in srgb,var(--bg) 97%,transparent)}}
 .hdr .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
 .brand .logo-mark{width:40px;height:40px}
@@ -313,6 +314,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 /* reveal & motion */
 .pre{opacity:0;transform:translateY(22px)}
 .rv{transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
+@media (max-width:760px),(pointer:coarse){.rv{transition-duration:.5s}}
 @media (prefers-reduced-motion:reduce){
   .pre{opacity:1;transform:none}
   .tag{animation:none}
@@ -375,6 +377,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .wash-drum[data-step="3"] .wash-drops i{animation-name:washBounce;animation-play-state:running;opacity:1;visibility:visible}
 .wash-drum[data-step="4"] .wash-stars i{animation-play-state:running;visibility:visible}
 .wash-drum[data-step="4"] .wash-shirt{transform:rotate(-3deg) scale(1.04)}
+.wash.idle *{animation-play-state:paused!important}
 .wash-list{padding-block:14vh}
 .wash-item{min-height:60vh;display:grid;align-content:center;gap:10px;opacity:.28;transition:opacity .5s}
 .wash-item.on{opacity:1}
@@ -923,6 +926,8 @@ img{max-width:100%}
 (function(){
 "use strict";
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// phones and tablets get lighter rendering; PCs keep full quality
+const MOBILE = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 760;
 const $ = s => document.querySelector(s);
 const yen = n => '¥' + n.toLocaleString('ja-JP');
 const LINE_URL = 'https://liff.line.me/1645278921-kWRPP32q/?accountId=001nioss';
@@ -1031,7 +1036,7 @@ let io;
 function setupReveal(){
   if(reduce) return;
   if(io) io.disconnect();
-  io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.remove('pre'); io.unobserve(e.target);} }), {rootMargin:'0px 0px -8% 0px'});
+  io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.remove('pre'); io.unobserve(e.target);} }), {rootMargin: MOBILE ? '0px 0px 20% 0px' : '0px 0px -8% 0px'});
   document.querySelectorAll('.page:not([hidden]) .reveal').forEach((el,i) => {
     const r = el.getBoundingClientRect();
     if(r.top > window.innerHeight){ el.classList.add('rv','pre'); el.style.transitionDelay = (i%3)*90+'ms'; io.observe(el); }
@@ -1053,9 +1058,9 @@ document.querySelectorAll('.member').forEach(sec => {
   const ctx = cv.getContext('2d');
   let W=0,H=0,dpr=1, bubbles=[], running=false, last=0, rim='', fill='';
   function colors(){ const cs=getComputedStyle(document.documentElement); rim=cs.getPropertyValue('--suds-rim').trim(); fill=cs.getPropertyValue('--suds-fill').trim(); }
-  function size(){ dpr=Math.min(window.devicePixelRatio||1,2); W=sec.clientWidth; H=sec.clientHeight; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
+  function size(){ dpr=Math.min(window.devicePixelRatio||1,MOBILE?1:2); W=sec.clientWidth; H=sec.clientHeight; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
   function make(x,y,r){ return {x:x??Math.random()*W, y:y??H+20+Math.random()*H*.3, r:r??(4+Math.pow(Math.random(),2)*22), vy:.25+Math.random()*.45, ph:Math.random()*6.28, sw:.4+Math.random()*.8, life:1, pop:0}; }
-  function seed(){ bubbles=[]; const n=Math.round(Math.min(46, W*H/26000)); for(let k=0;k<n;k++){ const b=make(); b.y=Math.random()*H; bubbles.push(b); } }
+  function seed(){ bubbles=[]; const n=Math.round(Math.min(MOBILE?22:46, W*H/26000)); for(let k=0;k<n;k++){ const b=make(); b.y=Math.random()*H; bubbles.push(b); } }
   function drawBubble(b){
     const r=b.r*(1+b.pop*.5), a=b.pop?1-b.pop:1;
     ctx.globalAlpha=a;
@@ -1089,7 +1094,7 @@ document.querySelectorAll('.member').forEach(sec => {
   size(); colors(); seed();
   if(reduce){ bubbles.forEach(drawBubble); }
   new IntersectionObserver(es=>{ if(es[0].isIntersecting) start(); else running=false; }).observe(sec);
-  window.addEventListener('resize', ()=>{ size(); seed(); if(reduce) bubbles.forEach(drawBubble); });
+  window.addEventListener('resize', ()=>{ if(sec.clientWidth===W) return; size(); seed(); if(reduce) bubbles.forEach(drawBubble); });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', colors);
   new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
   // a few fresh bubbles follow the pointer
@@ -1114,6 +1119,7 @@ $('#craftAbout').innerHTML = craftHTML();
   setStep(0);
   const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) setStep(+e.target.dataset.i); }),{rootMargin:'-45% 0px -45% 0px'});
   items.forEach(el=>io.observe(el));
+  const wash=$('#wash'); new IntersectionObserver(es=>wash.classList.toggle('idle',!es[0].isIntersecting)).observe(wash);
 })();
 const othersHTML = OTHERS.map(o=>'<span>'+o+'</span>').join('');
 $('#othersTop').innerHTML = othersHTML; $('#othersAbout').innerHTML = othersHTML;
@@ -1323,9 +1329,19 @@ function initRack(){
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
   /* page-scroll <-> position on the line */
-  function sectionTop(){ return section.getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(stage).top)||0); }
-  const introLen = () => stage.offsetHeight*INTRO_STEPS;
-  const railLen = () => Math.max(1, section.offsetHeight - stage.offsetHeight - introLen());
+  let geo=null;
+  function G(){
+    if(geo) return geo;
+    const g={top: section.getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(stage).top)||0), stageH: stage.offsetHeight, secH: section.offsetHeight};
+    if(g.stageH>0) geo=g;   // don't cache while the page is hidden
+    return g;
+  }
+  const dropGeo=()=>{ geo=null; };
+  window.addEventListener('resize', dropGeo); window.addEventListener('load', dropGeo);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(dropGeo);
+  function sectionTop(){ return G().top; }
+  const introLen = () => G().stageH*INTRO_STEPS;
+  const railLen = () => Math.max(1, G().secH - G().stageH - introLen());
   function introProgress(){ return clamp((window.scrollY - sectionTop())/introLen(), 0, 1); }
   function progress(){ return clamp((window.scrollY - sectionTop() - introLen())/railLen(), 0, 1); }
   function scrollToIndex(i){ window.scrollTo({top: sectionTop() + introLen() + (clamp(i,0,maxI)/maxI)*railLen() + 1, behavior: reduce?'auto':'smooth'}); }
@@ -1335,7 +1351,7 @@ function initRack(){
     const o = clamp(1 - ip*1.9, 0, 1);
     introEl.style.opacity = o.toFixed(3);
     introEl.style.transform = reduce ? '' : 'translateY('+(-ip*40).toFixed(1)+'px)';
-    introEl.style.filter = reduce ? '' : 'blur('+(ip*6).toFixed(2)+'px)';
+    introEl.style.filter = (reduce||MOBILE) ? '' : 'blur('+(ip*6).toFixed(2)+'px)';
     introEl.style.visibility = o<=0 ? 'hidden' : 'visible';
     stage.classList.toggle('in-intro', ip < .85);
     return ip;
@@ -1345,14 +1361,15 @@ function initRack(){
   api.go = i => scrollToIndex(i);
 
   let ok = !!T, renderer;
-  if(ok){ try{ renderer = new T.WebGLRenderer({antialias:true}); }catch(e){ ok=false; } }
+  if(ok){ try{ renderer = new T.WebGLRenderer({antialias:!MOBILE, powerPreference:'high-performance'}); }catch(e){ ok=false; } }
   if(!ok){
     const f=document.createElement('div'); f.className='fallback'; f.textContent='3D表示に対応していない環境です。下のボタンから服を選んでください。'; stage.appendChild(f);
     window.addEventListener('scroll', ()=>syncUI(Math.round(progress()*maxI)), {passive:true});
     api.tap = () => openTag(uiIndex<0?0:uiIndex);
     return api;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  let pixelRatio=Math.min(window.devicePixelRatio||1, MOBILE?1.5:2);
+  renderer.setPixelRatio(pixelRatio);
   let pending=GARMENTS.length, markReady;
   const ready=new Promise(r=>markReady=r);
   if(window.__loaderWait) window.__loaderWait(ready);
@@ -1491,8 +1508,11 @@ function initRack(){
 
   /* camera */
   let W=1,H=1;
-  function resize(){
-    W=stage.clientWidth; H=stage.clientHeight; renderer.setSize(W,H,false);
+  let lastW=0, lastH=0;
+  function resize(force){
+    const w=stage.clientWidth, h=stage.clientHeight;
+    if(force!==true && w===lastW && Math.abs(h-lastH)<2) return;
+    lastW=w; lastH=h; W=w; H=h; renderer.setSize(W,H,false);
     camera.aspect=W/H; camera.fov = W/H<.8 ? 50 : 38; camera.updateProjectionMatrix();
   }
   resize(); window.addEventListener('resize', resize);
@@ -1536,9 +1556,9 @@ function initRack(){
   api.tap = () => { spin(uiIndex); openTag(uiIndex); };
 
   /* loop */
-  let active=true, visible=true, last=performance.now(), s=0, prevS=0, vel=0, ip=introProgress();
+  let active=true, visible=true, last=performance.now(), s=0, prevS=0, vel=0, ip=introProgress(), slow=0;
   new IntersectionObserver(es=>{ visible=es[0].isIntersecting; document.body.classList.toggle('on-line', visible); }).observe(stage);
-  api.setActive = a => { active=a; if(a){ resize(); themeColors(); } };
+  api.setActive = a => { active=a; if(a){ geo=null; resize(true); themeColors(); } };
   const bar=$('#lineBar');
   const camPos=new T.Vector3(), look=new T.Vector3();
   function frame(now){
@@ -1549,6 +1569,7 @@ function initRack(){
     const ipT=introProgress(); ip += (ipT-ip)*(reduce?1:Math.min(1,dt*6));
     const ie = 1-Math.pow(1-clamp((ip-.25)/.75,0,1),3);
     renderer.domElement.style.opacity = ie.toFixed(3);
+    if(MOBILE && pixelRatio>1){ slow = dt>1/40 ? slow+dt : Math.max(0, slow-dt*.5); if(slow>1.2){ pixelRatio=1; renderer.setPixelRatio(1); resize(true); } }
     prevS=s; s += (target-s)*(reduce?1:Math.min(1,dt*5));
     const v=(s-prevS)/Math.max(dt,.001); vel += (v-vel)*Math.min(1,dt*5);
     mouse.x+=(mouse.tx-mouse.x)*Math.min(1,dt*3); mouse.y+=(mouse.ty-mouse.y)*Math.min(1,dt*3);
@@ -1575,7 +1596,7 @@ function initRack(){
     });
     if(bar) bar.style.transform='scaleX('+(s/(maxI*GAP)).toFixed(4)+')';
     syncUI(clamp(Math.round(s/GAP),0,maxI));
-    renderer.render(scene,camera);
+    if(ie>0.005) renderer.render(scene,camera);
   }
   requestAnimationFrame(frame);
   return api;
