@@ -626,7 +626,7 @@ img{max-width:100%}
 @keyframes ldChar{from{opacity:0;transform:translateY(10px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 @media (prefers-reduced-motion:reduce){.ld-drum::after,.ld-wave,.ld-drum i,.ld-name span,.ld-sub{animation:none}.ld-drum i{display:none}.ld-water{transition:none}}
 </style>
-<link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous">
+<link rel="preload" as="script" href="vendor/three.r128.min.js">
 <link rel="preload" as="image" href="images/shirt.webp"><link rel="preload" as="image" href="images/suit.webp"><link rel="preload" as="image" href="images/knit.webp"><link rel="preload" as="image" href="images/down.webp"><link rel="preload" as="image" href="images/coat.webp">
 <script>
 window.DBG=(function(){
@@ -658,7 +658,8 @@ window.DBG=(function(){
 <script>
 (function(){
   var root=document.documentElement, el=document.getElementById('loader'), water=el.querySelector('.ld-water');
-  var start=Date.now(), MIN=1800, MAX=10000, finished=false, waits=[];
+  var phone=matchMedia('(pointer: coarse)').matches||innerWidth<760;
+  var start=Date.now(), MIN=phone?1200:1800, MAX=phone?7000:10000, finished=false, waits=[];
   // parts of the page that must be ready before it is shown (the 3D rack registers itself)
   window.__loaderWait=function(p){ waits.push(p); };
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ water.style.setProperty('--lv','72%'); }); });
@@ -674,7 +675,7 @@ window.DBG=(function(){
   document.addEventListener('DOMContentLoaded', function(){
     var cap=function(p,ms){ return Promise.race([p, new Promise(function(r){ setTimeout(r,ms); })]); };
     var fonts=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
-    Promise.all([cap(fonts,2500)].concat(waits.map(function(w){ return cap(w,6000); }))).then(function(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }, finish);
+    Promise.all([cap(fonts,phone?1500:2500)].concat(waits.map(function(w){ return cap(w,phone?4000:6000); }))).then(function(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }, finish);
   });
   setTimeout(finish, MAX);
 })();
@@ -988,7 +989,7 @@ window.DBG=(function(){
 
 <a class="btn line fab" href="https://liff.line.me/1645278921-kWRPP32q/?accountId=001nioss" target="_blank" rel="noopener"><svg class="line-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.6 2 11c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.5s5.9-3.5 8-6c1.5-1.6 2-3.2 2-4.8C22 6.6 17.5 3 12 3z"/></svg>LINE会員登録</a>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+<script src="vendor/three.r128.min.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1663,18 +1664,18 @@ function initRack(){
   const pxPerItem=()=>railLen()/maxI;
   function hideHint(){ if(!hintGone){ hintGone=true; $('#hint').classList.add('gone'); } }
   window.addEventListener('scroll', ()=>{ if(window.scrollY>sectionTop()+introLen()+40) hideHint(); }, {passive:true});
-  stage.addEventListener('pointerdown', e=>{ if(e.target.closest('.hud,.chips,.tag,.g-cta')) return; down={x:e.clientX,y:e.clientY,lx:e.clientX,moved:false,id:e.pointerId}; });
+  stage.addEventListener('pointerdown', e=>{ if(e.target.closest('.hud,.chips,.tag,.g-cta')) return; down={x:e.clientX,y:e.clientY,lx:e.clientX,moved:false,id:e.pointerId,touch:e.pointerType!=='mouse'}; });
   window.addEventListener('pointermove', e=>{
     if(!down||e.pointerId!==down.id) return;
     const dx=e.clientX-down.x, dy=e.clientY-down.y;
-    if(!down.moved && Math.abs(dx)>6 && Math.abs(dx)>Math.abs(dy)){ down.moved=true; stage.classList.add('dragging'); hideHint(); }
+    if(!down.moved && (down.touch ? (Math.abs(dx)>16 && Math.abs(dx)>Math.abs(dy)*2.2) : (Math.abs(dx)>6 && Math.abs(dx)>Math.abs(dy)))){ down.moved=true; stage.classList.add('dragging'); hideHint(); }
     if(down.moved){ window.scrollBy(0, -(e.clientX-down.lx)*pxPerItem()/260); down.lx=e.clientX; }
   });
   const ray=new T.Raycaster(), mv=new T.Vector2();
   window.addEventListener('pointerup', e=>{
     if(!down||e.pointerId!==down.id) return;
     stage.classList.remove('dragging');
-    if(down.moved){ scrollToIndex(Math.round(progress()*maxI)); }
+    if(down.moved && !down.touch){ scrollToIndex(Math.round(progress()*maxI)); }
     else if(Math.abs(e.clientY-down.y)<6){
       const r=renderer.domElement.getBoundingClientRect();
       mv.set(((e.clientX-r.left)/r.width)*2-1, -((e.clientY-r.top)/r.height)*2+1);
@@ -1734,7 +1735,7 @@ function initRack(){
   addEventListener('wheel', ()=>{ pendingShow=-1; }, {passive:true}); addEventListener('touchstart', ()=>{ pendingShow=-1; }, {passive:true});
 
   /* loop */
-  let active=true, visible=true, last=performance.now(), s=0, prevS=0, vel=0, ip=introProgress(), slow=0, fpsN=0, fpsT=performance.now();
+  let active=true, visible=true, last=performance.now(), s=0, prevS=0, vel=0, ip=introProgress(), slow=0, oddFrame=false, fpsN=0, fpsT=performance.now();
   new IntersectionObserver(es=>{ visible=es[0].isIntersecting; document.body.classList.toggle('on-line', visible); }).observe(stage);
   api.setActive = a => { active=a; if(a){ geo=null; resize(true); themeColors(); } };
   const bar=$('#lineBar');
@@ -1776,7 +1777,9 @@ function initRack(){
     syncUI(clamp(Math.round(s/GAP),0,maxI));
     updatePending(); updateCta(ie); updateHover();
     if(DBG.on){ fpsN++; if(now-fpsT>2000){ DBG.log('rack fps '+(fpsN*1000/(now-fpsT)).toFixed(0)+' pr '+pixelRatio+' ie '+ie.toFixed(2)); fpsN=0; fpsT=now; } }
-    if(ie>0.005) renderer.render(scene,camera);
+    const still = Math.abs(vel)<.02 && Math.abs(target-s)<.01 && !items.some(it=>it.spinT>=0) && !(down&&down.moved);
+    oddFrame=!oddFrame;
+    if(ie>0.005 && !(MOBILE && still && oddFrame)) renderer.render(scene,camera);
   }
   requestAnimationFrame(frame);
   return api;
