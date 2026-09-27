@@ -194,6 +194,34 @@ body.on-line .fab{opacity:0;pointer-events:none}
 
 .filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
 
+/* store detail page */
+.sd-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);text-decoration:none;margin-bottom:14px}
+.sd-back:hover{color:var(--ink)}
+.sd-head .meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:12px}
+.sd-head .open-now{font-size:13px;display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+.sd-head .open-now i{width:9px;height:9px;border-radius:50%;background:#7FA86B}
+.sd-head .open-now.closed i{background:var(--muted)}
+.sd-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(20px,4vw,48px);align-items:start}
+.sd-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:clamp(18px,3vw,28px);display:grid;gap:14px}
+.sd-card h2{font-size:18px}
+.sd-card dl{display:grid;grid-template-columns:5.5em minmax(0,1fr);gap:10px 14px;margin:0;font-size:14.5px}
+.sd-card dt{color:var(--muted)}
+.sd-card dd{margin:0}
+.sd-card .tel{font-family:var(--f-mono);font-size:18px;font-variant-numeric:tabular-nums;color:var(--ink);text-decoration:none;user-select:all}
+.sd-today{background:var(--linen);border-radius:10px;padding:12px 14px;font-size:14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sd-today b{font-family:var(--f-mono);font-weight:500}
+.sd-actions{display:flex;flex-wrap:wrap;gap:8px}
+.sd-map{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--linen);aspect-ratio:4/3;max-width:100%}
+.sd-map iframe{display:block;width:100%;height:100%;border:0}
+.sd-block{margin-top:clamp(36px,6vw,64px)}
+.sd-block > h2{font-size:clamp(20px,2.6vw,26px);margin-bottom:16px}
+.sd-services{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.sd-services a{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none;font-size:14px}
+.sd-services a:hover{border-color:var(--ink)}
+.sd-services svg{width:26px;height:26px;color:var(--accent);flex:none}
+.sd-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
+.sd-line p{color:var(--ink-2);font-size:14px}
+@media (max-width:860px){.sd-grid{grid-template-columns:1fr}}
 /* store map (top page) */
 .smap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(18px,3vw,36px);align-items:start}
 .smap-map{position:relative;background:var(--linen);border:1px solid var(--line);border-radius:16px;overflow:hidden}
@@ -879,7 +907,7 @@ window.DBG=(function(){
 <section class="page" id="page-stores" data-name="stores" hidden>
   <div class="page-head"><div class="ring" data-parallax="0.1"></div>
     <div class="wrap"><p class="eyebrow">Access · Kanagawa</p><h1>店舗情報</h1>
-    <p>神奈川県の海老名・藤沢・厚木・座間・大和に11店舗。各店舗のお得な情報は、店舗ページの「店舗ページ」からご覧いただけます。</p></div>
+    <p>神奈川県の海老名・藤沢・厚木・座間・大和に11店舗。各店舗の営業時間や地図は、「店舗ページ」からご覧いただけます。</p></div>
   </div>
   <div class="wrap sec" style="padding-top:40px">
     <div class="smap smap-full play" data-smap></div>
@@ -893,6 +921,9 @@ window.DBG=(function(){
 </section>
 
 <!-- ============ CONTACT ============ -->
+<!-- ============ STORE DETAIL (#store-<slug>) ============ -->
+<section class="page" id="page-store" data-name="store" hidden><div id="storeDetail"></div></section>
+
 <section class="page" id="page-contact" data-name="contact" hidden>
   <div class="page-head"><div class="ring" data-parallax="0.1"></div>
     <div class="wrap"><p class="eyebrow">Contact us</p><h1>お問い合わせ</h1>
@@ -1080,12 +1111,17 @@ const QA = [
 /* ---------------- router ---------------- */
 const pages = ['top','about','price','news','stores','contact'];
 let pendingAnchor = null;
+const BASE_TITLE = document.title;
 function route(){
   let h = (location.hash||'').replace('#','') || 'top';
-  if(!pages.includes(h)) h='top';
-  pages.forEach(p => { $('#page-'+p).hidden = (p!==h); });
+  let navPage = h;
+  const sm = h.match(/^store-([a-z]+)$/);
+  if(sm && STORES.some(x=>x.slug===sm[1])){ renderStoreDetail(sm[1]); h='store'; navPage='stores'; }
+  else if(!pages.includes(h)) h='top';
+  if(h!=='store') document.title = BASE_TITLE;
+  pages.concat('store').forEach(p => { $('#page-'+p).hidden = (p!==h); });
   document.querySelectorAll('.nav a').forEach(a => a.removeAttribute('aria-current'));
-  const cur = document.querySelector('.nav a[data-page="'+h+'"]'); if(cur) cur.setAttribute('aria-current','page');
+  const cur = document.querySelector('.nav a[data-page="'+(h==='store'?navPage:h)+'"]'); if(cur) cur.setAttribute('aria-current','page');
   $('#nav').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded','false');
   closeTag();
   if(pendingAnchor){ const id=pendingAnchor; pendingAnchor=null; requestAnimationFrame(()=>{ const el=document.getElementById(id); if(el){ el.scrollIntoView({behavior:reduce?'auto':'smooth'}); } }); }
@@ -1293,8 +1329,39 @@ function storeCard(s,i){
   return '<article class="store reveal"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="area">'+s.city+'</span>'+openState(s)+'</div><h3>'+s.name+'</h3>'+
   '<dl><dt>住所</dt><dd>〒'+s.zip+'<br>'+s.addr+'</dd><dt>電話</dt><dd class="tel">'+s.tel+'</dd><dt>平日</dt><dd class="hours">'+s.wkText+'</dd><dt>休日</dt><dd class="hours">'+s.holText+'</dd><dt>定休日</dt><dd>'+s.offText+'</dd></dl>'+
   '<div class="s-foot"><a class="btn ghost sm" target="_blank" rel="noopener" href="'+mapsURL(s)+'">Googleマップ</a>'+
-  '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.osyareclub.com/tenpo/'+s.slug+'/">店舗ページ</a>'+
+  '<a class="btn ghost sm" href="#store-'+s.slug+'">店舗ページ</a>'+
   '<button class="btn ghost sm copy" data-copy="'+s.tel+'" data-label="電話番号をコピー">電話番号をコピー</button></div></article>';
+}
+/* store detail page */
+function renderStoreDetail(slug){
+  const s=STORES.find(x=>x.slug===slug); if(!s) return;
+  document.title = s.name+'｜おしゃれ倶楽部';
+  const now=new Date(), d=now.getDay(), r=d===0?s.sun:d===6?s.sat:s.wk;
+  const fmt=h=>Math.floor(h)+':'+(h%1?'30':'00');
+  const today = s.closed.includes(d) ? '本日は定休日です' : '本日の営業 '+fmt(r[0])+'〜'+fmt(r[1]);
+  const q=encodeURIComponent(s.addr.split(' ')[0]+' おしゃれ倶楽部 '+s.name);
+  const near=STORES.filter(x=>x.city===s.city && x.slug!==s.slug);
+  const others=near.length?near:STORES.filter(x=>x.slug!==s.slug).slice(0,3);
+  $('#storeDetail').innerHTML=
+    '<div class="page-head sd-head"><div class="wrap"><a class="sd-back" href="#stores">← 店舗一覧へ</a><p class="eyebrow">Store · '+s.city+'</p><h1>'+s.name+'</h1>'+
+      '<div class="meta"><span>〒'+s.zip+' '+s.addr+'</span>'+openState(s)+'</div></div></div>'+
+    '<div class="wrap sec" style="padding-top:36px">'+
+      '<div class="sd-grid">'+
+        '<div class="sd-card"><h2>店舗情報</h2><div class="sd-today"><span>'+today+'</span></div>'+
+          '<dl><dt>住所</dt><dd>〒'+s.zip+'<br>'+s.addr+'</dd>'+
+          '<dt>電話</dt><dd><a class="tel" href="tel:'+s.tel.replace(/-/g,'')+'">'+s.tel+'</a></dd>'+
+          '<dt>平日</dt><dd>'+s.wkText+'</dd><dt>休日</dt><dd>'+s.holText+'</dd><dt>定休日</dt><dd>'+s.offText+'</dd></dl>'+
+          '<div class="sd-actions"><a class="btn sm" href="https://www.google.com/maps/search/?api=1&query='+q+'" target="_blank" rel="noopener">Googleマップで開く</a>'+
+          '<a class="btn ghost sm" href="tel:'+s.tel.replace(/-/g,'')+'">電話する</a>'+
+          '<button class="btn ghost sm copy" data-copy="'+s.tel+'" data-label="電話番号をコピー">電話番号をコピー</button></div></div>'+
+        '<div class="sd-map"><iframe title="'+s.name+'の地図" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q='+q+'&output=embed"></iframe></div>'+
+      '</div>'+
+      '<div class="sd-block"><h2>この店舗で承っているサービス</h2><div class="sd-services">'+
+        CRAFT.map(c=>'<a href="#about"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+c[3]+'"/></svg>'+c[0]+'</a>').join('')+
+        '<a href="#price">料金一覧を見る →</a></div></div>'+
+      '<div class="sd-block sd-line"><div><h2 style="font-size:18px">LINE会員でお得に</h2><p>毎週金曜日にお得な情報をお届けします。</p></div><a class="btn line sm" href="'+LINE_URL+'" target="_blank" rel="noopener">LINEで友だち追加</a></div>'+
+      '<div class="sd-block"><h2>'+(near.length?s.city+'のほかの店舗':'ほかの店舗')+'</h2><div class="stores">'+others.map(x=>storeCard(x).replace(' reveal','')).join('')+'</div></div>'+
+    '</div>';
 }
 /* store map: used on the top page and the stores page */
 const MAP_LL={ebinaeki:[35.4510,139.3905],rokkaieki:[35.3745,139.4665],shounandai:[35.3935,139.4720],mirokuji:[35.3510,139.4745],zenkou:[35.3620,139.4640],atsugiasahi:[35.4320,139.3700],atsugitomuro:[35.4235,139.3390],soubudai:[35.5045,139.4040],zamairiya:[35.4760,139.3950],yamatochuou:[35.4700,139.4600],senbonzakura:[35.4300,139.4560]};
