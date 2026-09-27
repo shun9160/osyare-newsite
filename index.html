@@ -13,7 +13,8 @@
 <meta name="description" content="神奈川県の海老名・藤沢・厚木・座間・大和に11店舗のクリーニング店、おしゃれ倶楽部。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
 <style>
 :root{
   --bg:#FAF9F7; --surface:#FFFFFF; --linen:#F2EEE9; --steam:#E6ECEE;
@@ -52,8 +53,8 @@ p{margin:0}
 .logo-mark{display:inline-block;background:var(--ink);-webkit-mask:url("images/logo.png") center/contain no-repeat;mask:url("images/logo.png") center/contain no-repeat}
 
 /* header */
-.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-@media (max-width:760px),(pointer:coarse){.hdr{backdrop-filter:none;-webkit-backdrop-filter:none;background:color-mix(in srgb,var(--bg) 97%,transparent)}}
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--bg);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+@media (max-width:760px),(pointer:coarse){.hdr{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg);background:color-mix(in srgb,var(--bg) 97%,transparent)}}
 .hdr .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
 .brand .logo-mark{width:40px;height:40px}
@@ -96,7 +97,7 @@ p{margin:0}
 .stage canvas{display:block;width:100%;height:100%}
 .line-bar{position:absolute;left:0;right:0;top:0;height:2px;background:var(--line);z-index:3}
 .line-bar i{position:absolute;inset:0;background:var(--ink);transform-origin:0 50%;transform:scaleX(0)}
-.hint{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--surface) 80%,transparent);border:1px solid var(--line);padding:4px 14px;border-radius:999px;white-space:nowrap;z-index:2;pointer-events:none;transition:opacity .6s}
+.hint{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);background:var(--surface);background:color-mix(in srgb,var(--surface) 80%,transparent);border:1px solid var(--line);padding:4px 14px;border-radius:999px;white-space:nowrap;z-index:2;pointer-events:none;transition:opacity .6s}
 .hint.gone{opacity:0}
 .hud{position:absolute;left:max(var(--gutter),calc((100% - 1180px)/2 + var(--gutter)));bottom:96px;z-index:3;display:grid;gap:6px;justify-items:start;max-width:calc(100% - 2*var(--gutter))}
 .hud-no{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;color:var(--muted);display:flex;gap:6px}.hud-no small{font-size:12px}.hud-link{background:none;border:none;padding:0;margin-top:4px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--ink);cursor:pointer}
@@ -194,7 +195,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .smap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(18px,3vw,36px);align-items:start}
 .smap-map{position:relative;background:var(--linen);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .smap-map svg{display:block;width:100%;height:auto;cursor:pointer}
-.smap-river{fill:none;stroke:color-mix(in srgb,var(--steam),#7FA6BA 45%);stroke-width:9;stroke-linecap:round}
+.smap-river{fill:none;stroke:#A9C3CF;stroke:color-mix(in srgb,var(--steam),#7FA6BA 45%);stroke-width:9;stroke-linecap:round}
 .smap-rail{fill:none;stroke:var(--muted);stroke-width:2.2}
 .smap-tie{fill:none;stroke:var(--linen);stroke-width:1.4;stroke-dasharray:3 7}
 .smap-city{font-family:var(--f-display);font-size:22px;font-weight:700;fill:var(--line);letter-spacing:.3em}
@@ -262,7 +263,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .ptable td{padding:13px 4px;border-bottom:1px dotted var(--line);font-size:14.5px}
 .ptable td:nth-child(2){color:var(--muted);font-size:12.5px}
 .ptable td:last-child{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:16px;white-space:nowrap}
-.ptable tr.hl td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.ptable tr.hl td{background:rgba(154,106,62,.1);background:color-mix(in srgb,var(--accent) 10%,transparent)}
 .opt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:14px}
 .opt{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--surface)}
 .opt b{display:block;font-size:15px}
@@ -288,7 +289,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 /* contact */
 .contact-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:start}
 .line-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px;position:relative;overflow:hidden}
-.line-card::before{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:color-mix(in srgb,var(--line-green) 12%,transparent)}
+.line-card::before{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(6,199,85,.12);background:color-mix(in srgb,var(--line-green) 12%,transparent)}
 .line-card h2{font-size:24px;margin-top:8px;position:relative}
 .line-card ol{margin:18px 0 0;padding-left:1.3em;color:var(--ink-2);font-size:14px}
 .line-card ol li+li{margin-top:6px}
@@ -352,7 +353,8 @@ body.on-line .fab{opacity:0;pointer-events:none}
 /* wash story: the shirt in the drum gets cleaner as you scroll through the services */
 .wash{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px)}
 .wash-stage{position:sticky;top:calc(64px + 6vh);height:calc(88vh - 64px);display:grid;place-content:center;justify-items:center;gap:16px}
-.wash-drum{--size:min(34vw,400px,calc(88vh - 64px - 110px));position:relative;width:var(--size);height:var(--size);border-radius:50%;background:radial-gradient(circle,var(--steam) 0 52%,color-mix(in srgb,var(--steam) 55%,var(--bg)) 64%,var(--bg) 71%);-webkit-mask:radial-gradient(circle,#000 58%,transparent 71%);mask:radial-gradient(circle,#000 58%,transparent 71%);overflow:hidden;isolation:isolate}
+.wash-drum{--size:min(34vw,400px,calc(88vh - 64px - 110px));position:relative;width:var(--size);height:var(--size);border-radius:50%;background:radial-gradient(circle,var(--steam) 0 52%,var(--bg) 71%);background:radial-gradient(circle,var(--steam) 0 52%,color-mix(in srgb,var(--steam) 55%,var(--bg)) 64%,var(--bg) 71%);overflow:hidden;isolation:isolate}
+.wash-drum::before{content:"";position:absolute;inset:-1px;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,0) 58%,var(--bg) 70%);z-index:5;pointer-events:none}
 .wash-shirt{position:absolute;inset:11%;z-index:2;transition:transform 1s cubic-bezier(.3,.6,.3,1)}
 .wash-shirt img{display:block;width:100%;height:100%;object-fit:contain;filter:sepia(.55) saturate(1.5) brightness(.84) contrast(.94);transition:filter 1.6s ease}
 .wash-shirt .mask{position:absolute;inset:0;-webkit-mask:url("images/wash-shirt.webp") center/contain no-repeat;mask:url("images/wash-shirt.webp") center/contain no-repeat;pointer-events:none}
@@ -438,7 +440,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .pt td{padding:12px 4px;border-bottom:1px dotted var(--line);font-size:14.5px}
 .pt td.n{text-align:right;font-family:var(--f-mono);white-space:nowrap;padding-left:16px}
 .pt td.n.ex{color:var(--muted);font-size:13px}
-.pt tr.hl td{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.pt tr.hl td{background:rgba(154,106,62,.12);background:color-mix(in srgb,var(--accent) 12%,transparent)}
 .pt td small{display:block;color:var(--muted);font-size:12px}
 .price-cat h3{font-size:16px;margin-top:24px}
 .judge{display:grid;gap:8px;margin-top:14px}
@@ -604,7 +606,7 @@ img{max-width:100%}
 <script>
 (function(){
   var root=document.documentElement, el=document.getElementById('loader'), water=el.querySelector('.ld-water');
-  var start=Date.now(), MIN=1800, MAX=15000, finished=false, waits=[];
+  var start=Date.now(), MIN=1800, MAX=10000, finished=false, waits=[];
   // parts of the page that must be ready before it is shown (the 3D rack registers itself)
   window.__loaderWait=function(p){ waits.push(p); };
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ water.style.setProperty('--lv','72%'); }); });
@@ -616,9 +618,11 @@ img{max-width:100%}
       setTimeout(function(){ el.remove(); }, 800);
     }, 650);
   }
-  window.addEventListener('load', function(){
+  // start from DOMContentLoaded: a slow web font can hold back window.load for a long time (seen on iOS Safari)
+  document.addEventListener('DOMContentLoaded', function(){
+    var cap=function(p,ms){ return Promise.race([p, new Promise(function(r){ setTimeout(r,ms); })]); };
     var fonts=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
-    Promise.all([fonts].concat(waits)).then(function(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }, finish);
+    Promise.all([cap(fonts,2500)].concat(waits.map(function(w){ return cap(w,6000); }))).then(function(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }, finish);
   });
   setTimeout(finish, MAX);
 })();
