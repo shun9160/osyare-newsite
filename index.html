@@ -290,6 +290,68 @@ body.on-line .fab{opacity:0;pointer-events:none}
 @media (max-width:420px){.craft{grid-template-columns:1fr}}
 .others{margin-top:28px;border-top:1px solid var(--line);padding-top:22px;display:grid;gap:10px}
 .others-lead{color:var(--ink-2);font-size:14px}
+/* wash story: the shirt in the drum gets cleaner as you scroll through the services */
+.wash{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px)}
+.wash-stage{position:sticky;top:calc(64px + 6vh);height:calc(88vh - 64px);display:grid;place-content:center;justify-items:center;gap:16px}
+.wash-drum{--size:min(34vw,400px,calc(88vh - 64px - 110px));position:relative;width:var(--size);height:var(--size);border-radius:50%;background:var(--steam);overflow:hidden;border:2px solid var(--ink);box-shadow:inset 0 0 0 10px var(--bg),inset 0 0 0 11px var(--line);isolation:isolate}
+.wash-drum::after{content:"";position:absolute;inset:16px;border-radius:50%;border:1.5px dotted var(--muted);opacity:.4;z-index:4;pointer-events:none}
+.wash-shirt{position:absolute;inset:11%;z-index:2;transition:transform 1s cubic-bezier(.3,.6,.3,1)}
+.wash-shirt img{display:block;width:100%;height:100%;object-fit:contain;filter:sepia(.55) saturate(1.5) brightness(.84) contrast(.94);transition:filter 1.6s ease}
+.wash-shirt .mask{position:absolute;inset:0;-webkit-mask:url("images/wash-shirt.webp") center/contain no-repeat;mask:url("images/wash-shirt.webp") center/contain no-repeat;pointer-events:none}
+.wash-stain{mix-blend-mode:multiply;transition:opacity 1.6s ease;background:
+  radial-gradient(ellipse 13% 6% at 50% 10%,rgba(150,110,40,.75),transparent 70%),
+  radial-gradient(ellipse 9% 12% at 29% 34%,rgba(185,145,45,.7),transparent 70%),
+  radial-gradient(ellipse 9% 12% at 71% 34%,rgba(185,145,45,.7),transparent 70%),
+  radial-gradient(ellipse 8% 5% at 21% 86%,rgba(120,100,70,.6),transparent 70%),
+  radial-gradient(ellipse 8% 5% at 79% 86%,rgba(120,100,70,.6),transparent 70%),
+  radial-gradient(ellipse 16% 10% at 42% 55%,rgba(150,120,60,.35),transparent 70%)}
+.wash-shine{opacity:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.95) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:120% 0}
+.wash-glow{position:absolute;inset:6%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 66%);opacity:0;transition:opacity 1s;z-index:1}
+.wash-waves{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity .8s;color:var(--accent)}
+.wash-waves svg{position:absolute;left:0;width:200%;height:12%;animation:washDrift 5s linear infinite}
+.wash-waves svg:nth-child(2){animation-duration:7s;animation-direction:reverse}
+.wash-dome{position:absolute;left:10%;right:10%;top:9%;height:44%;border-radius:50% 50% 0 0/100% 100% 0 0;border-top:2px solid rgba(255,255,255,.95);box-shadow:0 -6px 16px -8px rgba(110,160,185,.9);opacity:0;transition:opacity .8s;z-index:3}
+.wash-drops i,.wash-stars i{position:absolute;z-index:3;opacity:0;visibility:hidden}
+.wash-drops i{top:-6%;left:var(--x);width:5px;height:11px;border-radius:50% 50% 50% 50%/62% 62% 38% 38%;background:rgba(110,160,188,.8);animation:washFall var(--t) linear infinite;animation-delay:var(--d);animation-play-state:paused}
+.wash-stars i{left:var(--x);top:var(--y);width:16px;height:16px;background:var(--accent);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);animation:washTwinkle 1.8s ease-in-out infinite;animation-delay:var(--d);animation-play-state:paused}
+.wash-cap{font-family:var(--f-display);font-size:15px;letter-spacing:.12em;color:var(--ink-2);text-align:center;min-height:1.8em}
+.wash-dots{display:flex;gap:8px}
+.wash-dots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .4s,transform .4s}
+.wash-dots i.on{background:var(--accent);transform:scale(1.3)}
+/* steps accumulate: once cleaned, it stays clean */
+.wash-drum:not([data-step="0"]) .wash-stain{opacity:0}
+.wash-drum[data-step="1"] img{filter:sepia(.22) saturate(1.2) brightness(.94)}
+.wash-drum[data-step="2"] img,.wash-drum[data-step="3"] img,.wash-drum[data-step="4"] img{filter:brightness(1.03)}
+.wash-drum[data-step="0"] .wash-drops i{animation-play-state:running;opacity:1;visibility:visible}
+.wash-drum[data-step="1"] .wash-waves{opacity:.45}
+.wash-drum[data-step="2"] .wash-glow{opacity:1;animation:washPulse 2.4s ease-in-out infinite}
+.wash-drum[data-step="2"] .wash-shine{opacity:1;animation:washShine 2.2s ease-in-out .3s infinite}
+.wash-drum[data-step="3"] .wash-dome{opacity:1}
+.wash-drum[data-step="3"] .wash-drops i{animation-name:washBounce;animation-play-state:running;opacity:1;visibility:visible}
+.wash-drum[data-step="4"] .wash-stars i{animation-play-state:running;visibility:visible}
+.wash-drum[data-step="4"] .wash-shirt{transform:rotate(-3deg) scale(1.04)}
+.wash-list{padding-block:14vh}
+.wash-item{min-height:60vh;display:grid;align-content:center;gap:10px;opacity:.28;transition:opacity .5s}
+.wash-item.on{opacity:1}
+.wash-item svg{width:34px;height:34px;color:var(--accent)}
+.wash-item h3{font-size:clamp(22px,2.6vw,28px)}
+.wash-item .tagline{font-size:12.5px;color:var(--accent);font-weight:500;letter-spacing:.06em}
+.wash-item p{color:var(--ink-2);max-width:26em}
+@keyframes washDrift{to{transform:translateX(-50%)}}
+@keyframes washFall{0%{transform:translateY(0);opacity:0}10%{opacity:1}100%{transform:translateY(1100%);opacity:.9}}
+@keyframes washBounce{0%{transform:translate(0,0);opacity:0}10%{opacity:1}40%{transform:translate(0,330%);opacity:1}72%{transform:translate(var(--bx),170%) rotate(40deg);opacity:.8}100%{transform:translate(calc(var(--bx) * 1.7),320%);opacity:0}}
+@keyframes washTwinkle{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
+@keyframes washPulse{0%,100%{transform:scale(.94)}50%{transform:scale(1.05)}}
+@keyframes washShine{0%{background-position:120% 0}60%,100%{background-position:-20% 0}}
+@media (max-width:760px){
+  .wash{grid-template-columns:1fr;gap:0}
+  .wash-stage{top:64px;height:auto;padding-block:14px 12px;z-index:3;background:var(--bg);border-bottom:1px solid var(--line);gap:10px}
+  .wash-drum{--size:min(50vw,210px)}
+  .wash-cap{font-size:14px}
+  .wash-list{padding-block:4vh 8vh}
+  .wash-item{min-height:50vh}
+}
+@media (prefers-reduced-motion:reduce){.wash-waves svg,.wash-drops i,.wash-stars i,.wash-glow,.wash-shine{animation:none!important}.wash-drops i,.wash-stars i{display:none}}
 .badges.big span{font-size:13.5px;padding:6px 14px;border-radius:999px;background:var(--linen)}
 
 /* about */
@@ -561,7 +623,21 @@ img{max-width:100%}
       <div><p class="eyebrow">Wash · Finish · Care</p><h2>こだわりの洗い・仕上げ・加工</h2></div>
       <a class="btn ghost sm" href="#about">詳しく見る</a>
     </div>
-    <div class="craft" id="craftTop"></div>
+    <div class="wash" id="wash">
+      <div class="wash-stage">
+        <div class="wash-drum" id="washDrum" data-step="0" aria-hidden="true">
+          <div class="wash-glow"></div>
+          <div class="wash-waves"><svg viewBox="0 0 400 20" preserveAspectRatio="none" style="top:30%"><path d="M0 10Q25 0 50 10T100 10T150 10T200 10T250 10T300 10T350 10T400 10" fill="none" stroke="currentColor" stroke-width="2"/></svg><svg viewBox="0 0 400 20" preserveAspectRatio="none" style="top:62%"><path d="M0 10Q25 0 50 10T100 10T150 10T200 10T250 10T300 10T350 10T400 10" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          <div class="wash-shirt"><img src="images/wash-shirt.webp" alt="" width="600" height="600" loading="lazy" decoding="async"><span class="mask wash-stain"></span><span class="mask wash-shine"></span></div>
+          <div class="wash-dome"></div>
+          <div class="wash-drops" id="washDrops"></div>
+          <div class="wash-stars" id="washStars"></div>
+        </div>
+        <p class="wash-cap" id="washCap">水で汗をすっきり</p>
+        <div class="wash-dots" id="washDots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="wash-list" id="washList"></div>
+    </div>
     <div class="others reveal">
       <p class="eyebrow">Others</p>
       <p class="others-lead">衣類のほかにも、さまざまなお品物のクリーニングを手がけています。お気軽にご相談ください。</p>
@@ -974,7 +1050,20 @@ document.querySelectorAll('.member').forEach(sec => {
 
 /* ---------------- lists ---------------- */
 function craftHTML(){ return CRAFT.map(c=>'<article class="craft-card reveal"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+c[3]+'"/></svg><h3>'+c[0]+'</h3><span class="tagline">'+c[1]+'</span><p>'+c[2]+'</p></article>').join(''); }
-$('#craftTop').innerHTML = craftHTML(); $('#craftAbout').innerHTML = craftHTML();
+$('#craftAbout').innerHTML = craftHTML();
+/* wash story (top page) */
+(function(){
+  const drum=$('#washDrum'); if(!drum) return;
+  const STEPS=['水で汗をすっきり','汗の成分と黄ばみを取り除く','白さがよみがえる','雨をはじく','風合いを整えて仕上げ'];
+  $('#washList').innerHTML = CRAFT.map((c,i)=>'<article class="wash-item" data-i="'+i+'"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+c[3]+'"/></svg><h3>'+c[0]+'</h3><span class="tagline">'+c[1]+'</span><p>'+c[2]+'</p></article>').join('');
+  $('#washDrops').innerHTML = Array.from({length:12},(_,i)=>'<i style="--x:'+(8+i*7.5)+'%;--t:'+(1.3+(i%4)*.25)+'s;--d:'+((i*.37)%1.6).toFixed(2)+'s;--bx:'+(i%2?18:-18)+'px"></i>').join('');
+  $('#washStars').innerHTML = [[16,22],[76,18],[82,62],[18,70],[50,8],[64,86]].map((p,i)=>'<i style="--x:'+p[0]+'%;--y:'+p[1]+'%;--d:'+(i*.3)+'s"></i>').join('');
+  const items=[...document.querySelectorAll('.wash-item')], dots=[...document.querySelectorAll('#washDots i')], cap=$('#washCap');
+  function setStep(i){ drum.dataset.step=i; cap.textContent=STEPS[i]; items.forEach((el,j)=>el.classList.toggle('on',j===i)); dots.forEach((el,j)=>el.classList.toggle('on',j===i)); }
+  setStep(0);
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) setStep(+e.target.dataset.i); }),{rootMargin:'-45% 0px -45% 0px'});
+  items.forEach(el=>io.observe(el));
+})();
 const othersHTML = OTHERS.map(o=>'<span>'+o+'</span>').join('');
 $('#othersTop').innerHTML = othersHTML; $('#othersAbout').innerHTML = othersHTML;
 
