@@ -356,16 +356,8 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .wash-drum{--size:min(34vw,400px,calc(88vh - 64px - 110px));position:relative;width:var(--size);height:var(--size);border-radius:50%;background:radial-gradient(circle,var(--steam) 0 52%,var(--bg) 71%);background:radial-gradient(circle,var(--steam) 0 52%,color-mix(in srgb,var(--steam) 55%,var(--bg)) 64%,var(--bg) 71%);overflow:hidden;isolation:isolate}
 .wash-drum::before{content:"";position:absolute;inset:-1px;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,0) 58%,var(--bg) 70%);z-index:5;pointer-events:none}
 .wash-shirt{position:absolute;inset:11%;z-index:2;transition:transform 1s cubic-bezier(.3,.6,.3,1)}
-.wash-shirt img{display:block;width:100%;height:100%;object-fit:contain;filter:sepia(.55) saturate(1.5) brightness(.84) contrast(.94);transition:filter 1.6s ease}
-.wash-shirt .mask{position:absolute;inset:0;-webkit-mask:url("images/wash-shirt.webp") center/contain no-repeat;mask:url("images/wash-shirt.webp") center/contain no-repeat;pointer-events:none}
-.wash-stain{mix-blend-mode:multiply;transition:opacity 1.6s ease;background:
-  radial-gradient(ellipse 13% 6% at 50% 10%,rgba(150,110,40,.75),transparent 70%),
-  radial-gradient(ellipse 9% 12% at 29% 34%,rgba(185,145,45,.7),transparent 70%),
-  radial-gradient(ellipse 9% 12% at 71% 34%,rgba(185,145,45,.7),transparent 70%),
-  radial-gradient(ellipse 8% 5% at 21% 86%,rgba(120,100,70,.6),transparent 70%),
-  radial-gradient(ellipse 8% 5% at 79% 86%,rgba(120,100,70,.6),transparent 70%),
-  radial-gradient(ellipse 16% 10% at 42% 55%,rgba(150,120,60,.35),transparent 70%)}
-.wash-shine{opacity:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.95) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:120% 0}
+.wash-shirt img,.wash-shirt canvas{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain}
+.wash-shirt canvas{transition:opacity 1.6s ease}
 .wash-glow{position:absolute;inset:6%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 66%);opacity:0;transition:opacity 1s;z-index:1}
 .wash-waves{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity .8s;color:var(--accent)}
 .wash-waves svg{position:absolute;left:0;width:200%;height:12%;animation:washDrift 5s linear infinite}
@@ -379,13 +371,11 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .wash-dots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .4s,transform .4s}
 .wash-dots i.on{background:var(--accent);transform:scale(1.3)}
 /* steps accumulate: once cleaned, it stays clean */
-.wash-drum:not([data-step="0"]) .wash-stain{opacity:0}
-.wash-drum[data-step="1"] img{filter:sepia(.22) saturate(1.2) brightness(.94)}
-.wash-drum[data-step="2"] img,.wash-drum[data-step="3"] img,.wash-drum[data-step="4"] img{filter:brightness(1.03)}
+.wash-drum:not([data-step="0"]) .wash-dirty{opacity:0}
+.wash-drum:not([data-step="0"]):not([data-step="1"]) .wash-half{opacity:0}
 .wash-drum[data-step="0"] .wash-drops i{animation-play-state:running;opacity:1;visibility:visible}
 .wash-drum[data-step="1"] .wash-waves{opacity:.45}
 .wash-drum[data-step="2"] .wash-glow{opacity:1;animation:washPulse 2.4s ease-in-out infinite}
-.wash-drum[data-step="2"] .wash-shine{opacity:1;animation:washShine 2.2s ease-in-out .3s infinite}
 .wash-drum[data-step="3"] .wash-dome{opacity:1}
 .wash-drum[data-step="3"] .wash-drops i{animation-name:washBounce;animation-play-state:running;opacity:1;visibility:visible}
 .wash-drum[data-step="4"] .wash-stars i{animation-play-state:running;visibility:visible}
@@ -403,7 +393,6 @@ body.on-line .fab{opacity:0;pointer-events:none}
 @keyframes washBounce{0%{transform:translate(0,0);opacity:0}10%{opacity:1}40%{transform:translate(0,330%);opacity:1}72%{transform:translate(var(--bx),170%) rotate(40deg);opacity:.8}100%{transform:translate(calc(var(--bx) * 1.7),320%);opacity:0}}
 @keyframes washTwinkle{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}}
 @keyframes washPulse{0%,100%{transform:scale(.94)}50%{transform:scale(1.05)}}
-@keyframes washShine{0%{background-position:120% 0}60%,100%{background-position:-20% 0}}
 @media (max-width:760px){
   .wash{grid-template-columns:1fr;gap:0}
   .wash-stage{top:64px;height:auto;padding-block:14px 12px;z-index:3;background:var(--bg);border-bottom:1px solid var(--line);gap:10px}
@@ -412,7 +401,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
   .wash-list{padding-block:4vh 8vh}
   .wash-item{min-height:50vh}
 }
-@media (prefers-reduced-motion:reduce){.wash-waves svg,.wash-drops i,.wash-stars i,.wash-glow,.wash-shine{animation:none!important}.wash-drops i,.wash-stars i{display:none}}
+@media (prefers-reduced-motion:reduce){.wash-waves svg,.wash-drops i,.wash-stars i,.wash-glow{animation:none!important}.wash-drops i,.wash-stars i{display:none}}
 .badges.big span{font-size:13.5px;padding:6px 14px;border-radius:999px;background:var(--linen)}
 
 /* about */
@@ -591,6 +580,21 @@ img{max-width:100%}
 </style>
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous">
 <link rel="preload" as="image" href="images/shirt.webp"><link rel="preload" as="image" href="images/suit.webp"><link rel="preload" as="image" href="images/knit.webp"><link rel="preload" as="image" href="images/down.webp"><link rel="preload" as="image" href="images/coat.webp">
+<script>
+window.DBG=(function(){
+  var on=/[?&]debug/.test(location.search), lines=[], box=null, t0=Date.now();
+  function paint(){ if(!on) return; if(!box){ box=document.createElement('pre'); box.style.cssText='position:fixed;left:6px;right:6px;bottom:6px;z-index:99999;max-height:45vh;overflow:auto;margin:0;padding:8px;background:rgba(0,0,0,.82);color:#9f9;font:11px/1.35 ui-monospace,Menlo,monospace;white-space:pre-wrap;border-radius:8px;pointer-events:auto'; (document.body||document.documentElement).appendChild(box); } box.textContent=lines.join('\n'); }
+  function log(m){ lines.push(((Date.now()-t0)/1000).toFixed(1)+'s '+m); if(lines.length>60) lines.shift(); paint(); }
+  if(on){
+    window.addEventListener('error', function(e){ var t=e.target; if(t&&t!==window&&(t.src||t.href)){ log('LOAD FAIL '+(t.src||t.href)); return; } log('ERROR '+(e.message||e.type)+' @'+(e.filename||'').split('/').pop()+':'+(e.lineno||'')); }, true);
+    window.addEventListener('unhandledrejection', function(e){ log('REJECT '+(e.reason&&e.reason.message||e.reason)); });
+    log(navigator.userAgent); log('screen '+innerWidth+'x'+innerHeight+' dpr '+devicePixelRatio);
+    document.addEventListener('DOMContentLoaded', function(){ log('DOMContentLoaded'); });
+    window.addEventListener('load', function(){ log('load'); });
+  }
+  return {on:on, log:log};
+})();
+</script>
 <script>document.documentElement.classList.add('is-loading')</script>
 </head>
 <body>
@@ -614,7 +618,7 @@ img{max-width:100%}
     if(finished) return; finished=true;
     water.style.transition='height .6s cubic-bezier(.4,0,.2,1)'; water.style.setProperty('--lv','100%');
     setTimeout(function(){
-      el.classList.add('done'); root.classList.remove('is-loading');
+      el.classList.add('done'); root.classList.remove('is-loading'); if(window.DBG) DBG.log('loader closed');
       setTimeout(function(){ el.remove(); }, 800);
     }, 650);
   }
@@ -698,7 +702,7 @@ img{max-width:100%}
         <div class="wash-drum" id="washDrum" data-step="0" aria-hidden="true">
           <div class="wash-glow"></div>
           <div class="wash-waves"><svg viewBox="0 0 400 20" preserveAspectRatio="none" style="top:30%"><path d="M0 10Q25 0 50 10T100 10T150 10T200 10T250 10T300 10T350 10T400 10" fill="none" stroke="currentColor" stroke-width="2"/></svg><svg viewBox="0 0 400 20" preserveAspectRatio="none" style="top:62%"><path d="M0 10Q25 0 50 10T100 10T150 10T200 10T250 10T300 10T350 10T400 10" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-          <div class="wash-shirt"><img src="images/wash-shirt.webp" alt="" width="600" height="600" loading="lazy" decoding="async"><span class="mask wash-stain"></span><span class="mask wash-shine"></span></div>
+          <div class="wash-shirt"><img src="images/wash-shirt.webp" alt="" width="600" height="600" decoding="async"><canvas class="wash-half" width="1" height="1"></canvas><canvas class="wash-dirty" width="1" height="1"></canvas></div>
           <div class="wash-dome"></div>
           <div class="wash-drops" id="washDrops"></div>
           <div class="wash-stars" id="washStars"></div>
@@ -1129,6 +1133,29 @@ $('#craftAbout').innerHTML = craftHTML();
   $('#washList').innerHTML = CRAFT.map((c,i)=>'<article class="wash-item" data-i="'+i+'"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+c[3]+'"/></svg><h3>'+c[0]+'</h3><span class="tagline">'+c[1]+'</span><p>'+c[2]+'</p></article>').join('');
   $('#washDrops').innerHTML = Array.from({length:12},(_,i)=>'<i style="--x:'+(8+i*7.5)+'%;--t:'+(1.3+(i%4)*.25)+'s;--d:'+((i*.37)%1.6).toFixed(2)+'s;--bx:'+(i%2?18:-18)+'px"></i>').join('');
   $('#washStars').innerHTML = [[16,22],[76,18],[82,62],[18,70],[50,8],[64,86]].map((p,i)=>'<i style="--x:'+p[0]+'%;--y:'+p[1]+'%;--d:'+(i*.3)+'s"></i>').join('');
+  // bake the "dirty" and "half clean" shirts once (plain canvas pixels: no CSS masks, blends or filters)
+  (function(){
+    const img=drum.querySelector('.wash-shirt img'), half=drum.querySelector('.wash-half'), dirty=drum.querySelector('.wash-dirty');
+    function bake(){
+      const w=img.naturalWidth, h=img.naturalHeight; if(!w) return;
+      try{
+        const tint=(cv,k)=>{ cv.width=w; cv.height=h; const x=cv.getContext('2d'); x.drawImage(img,0,0);
+          const d=x.getImageData(0,0,w,h), a=d.data;
+          for(let q=0;q<a.length;q+=4){ const r=a[q],g=a[q+1],b=a[q+2];
+            const sr=Math.min(255,r*.393+g*.769+b*.189), sg=Math.min(255,r*.349+g*.686+b*.168), sb=Math.min(255,r*.272+g*.534+b*.131);
+            const dim=1-.16*k; a[q]=(r+(sr-r)*k)*dim; a[q+1]=(g+(sg-g)*k)*dim; a[q+2]=(b+(sb-b)*k*1.1)*dim; }
+          x.putImageData(d,0,0); return x; };
+        tint(half,.3);
+        const x=tint(dirty,.75);
+        x.globalCompositeOperation='source-atop';   // stains only where the shirt is
+        [[.50,.10,.13,.06,'150,110,40',.75],[.29,.34,.09,.12,'185,145,45',.7],[.71,.34,.09,.12,'185,145,45',.7],[.21,.86,.08,.05,'120,100,70',.6],[.79,.86,.08,.05,'120,100,70',.6],[.42,.55,.16,.10,'150,120,60',.35]].forEach(([cx,cy,rx,ry,c,o])=>{
+          x.save(); x.translate(cx*w,cy*h); x.scale(rx*w,ry*h);
+          const g=x.createRadialGradient(0,0,0,0,0,1); g.addColorStop(0,'rgba('+c+','+o+')'); g.addColorStop(1,'rgba('+c+',0)');
+          x.fillStyle=g; x.beginPath(); x.arc(0,0,1,0,Math.PI*2); x.fill(); x.restore(); });
+      }catch(e){ half.remove(); dirty.remove(); }
+    }
+    if(img.complete) bake(); else img.addEventListener('load', bake);
+  })();
   const items=[...document.querySelectorAll('.wash-item')], dots=[...document.querySelectorAll('#washDots i')], cap=$('#washCap');
   function setStep(i){ drum.dataset.step=i; cap.textContent=STEPS[i]; items.forEach((el,j)=>el.classList.toggle('on',j===i)); dots.forEach((el,j)=>el.classList.toggle('on',j===i)); }
   setStep(0);
@@ -1385,12 +1412,15 @@ function initRack(){
     return api;
   }
   let pixelRatio=Math.min(window.devicePixelRatio||1, MOBILE?1.5:2);
+  if(DBG.on){ try{ const gl=renderer.getContext(), ext=gl.getExtension('WEBGL_debug_renderer_info'); DBG.log('WebGL'+(renderer.capabilities.isWebGL2?'2':'1')+' '+(ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'')+' maxTex '+renderer.capabilities.maxTextureSize+' MOBILE '+MOBILE+' reduce '+reduce); }catch(e){ DBG.log('gl info failed '+e.message); } }
   renderer.setPixelRatio(pixelRatio);
   let pending=GARMENTS.length, markReady;
   const ready=new Promise(r=>markReady=r);
   if(window.__loaderWait) window.__loaderWait(ready);
-  const garmentDone=()=>{ if(--pending>0) return; try{ renderer.compile(scene,camera); }catch(e){} requestAnimationFrame(()=>markReady()); };
+  const garmentDone=()=>{ DBG.log('garment ready ('+(GARMENTS.length-pending+1)+'/'+GARMENTS.length+')'); if(--pending>0) return; try{ renderer.compile(scene,camera); }catch(e){} requestAnimationFrame(()=>markReady()); };
   stage.insertBefore(renderer.domElement, stage.firstChild);
+  renderer.domElement.addEventListener('webglcontextlost', e=>{ e.preventDefault(); DBG.log('webgl context lost'); }, false);
+  renderer.domElement.addEventListener('webglcontextrestored', ()=>{ DBG.log('webgl context restored'); }, false);
   const scene = new T.Scene();
   const camera = new T.PerspectiveCamera(36, 1, 0.1, 80);
   scene.add(new T.HemisphereLight(0xffffff, 0xd9cfc4, 0.78));
@@ -1611,7 +1641,7 @@ function initRack(){
   addEventListener('wheel', ()=>{ pendingShow=-1; }, {passive:true}); addEventListener('touchstart', ()=>{ pendingShow=-1; }, {passive:true});
 
   /* loop */
-  let active=true, visible=true, last=performance.now(), s=0, prevS=0, vel=0, ip=introProgress(), slow=0;
+  let active=true, visible=true, last=performance.now(), s=0, prevS=0, vel=0, ip=introProgress(), slow=0, fpsN=0, fpsT=performance.now();
   new IntersectionObserver(es=>{ visible=es[0].isIntersecting; document.body.classList.toggle('on-line', visible); }).observe(stage);
   api.setActive = a => { active=a; if(a){ geo=null; resize(true); themeColors(); } };
   const bar=$('#lineBar');
@@ -1652,6 +1682,7 @@ function initRack(){
     if(bar) bar.style.transform='scaleX('+(s/(maxI*GAP)).toFixed(4)+')';
     syncUI(clamp(Math.round(s/GAP),0,maxI));
     updatePending(); updateCta(ie); updateHover();
+    if(DBG.on){ fpsN++; if(now-fpsT>2000){ DBG.log('rack fps '+(fpsN*1000/(now-fpsT)).toFixed(0)+' pr '+pixelRatio+' ie '+ie.toFixed(2)); fpsN=0; fpsT=now; } }
     if(ie>0.005) renderer.render(scene,camera);
   }
   requestAnimationFrame(frame);
