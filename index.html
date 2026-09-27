@@ -1202,12 +1202,14 @@ function initRack(){
     const hold=new T.Group(); hold.position.y=-HOOK; pivot.add(hold);
     const w=g.w*PX, h=g.h*PX;
     const hp=[new T.Vector3(0,-.16,0),new T.Vector3(0,.06,0),new T.Vector3(0,.3,0),new T.Vector3(-.12,.42,0),new T.Vector3(-.03,.55,0),new T.Vector3(.1,.49,0)];
-    const hook=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(hp),40,.016,8,false), metalM); hook.rotation.y=-.2; hold.add(hook);
+    // per-garment copies so the hanger can fade out together with its garment
+    const hookM=metalM.clone(), barM=woodM.clone(); hookM.transparent=barM.transparent=true;
+    const hook=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(hp),40,.016,8,false), hookM); hook.rotation.y=-.2; hold.add(hook);
     const bar=new T.QuadraticBezierCurve3(new T.Vector3(-w*.3,-.3,0),new T.Vector3(0,-.08,0),new T.Vector3(w*.3,-.3,0));
-    if(!g.noBar) hold.add(new T.Mesh(new T.TubeGeometry(bar,24,.035,8,false), woodM));
+    if(!g.noBar) hold.add(new T.Mesh(new T.TubeGeometry(bar,24,.035,8,false), barM));
     const sh=new T.Mesh(new T.PlaneGeometry(w*1.3,1.1), new T.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false,fog:true}));
     sh.rotation.x=-Math.PI/2; sh.position.set(p.x, FLOOR_Y+.005, p.z); scene.add(sh);
-    const it={pivot, hold, spinT:-1, phase:Math.random()*6, uBend:{value:0}, s:i*GAP};
+    const it={pivot, hold, spinT:-1, phase:Math.random()*6, uBend:{value:0}, s:i*GAP, hangerMats:[hookM, barM], shadow:sh};
     const img=new Image();
     img.onload=()=>{
       const tex=new T.Texture(img); tex.needsUpdate=true; tex.anisotropy=renderer.capabilities.getMaxAnisotropy();
@@ -1325,6 +1327,8 @@ function initRack(){
       const fade = Math.max(0, Math.min(1, (d + .8) / .45));
       it.pivot.visible = fade > 0.01;
       if(it.mats) it.mats.forEach(m=>{ m.opacity = fade; m.depthWrite = fade > .99; });
+      it.hangerMats.forEach(m=>{ m.opacity = fade; m.depthWrite = fade > .99; });
+      it.shadow.material.opacity = fade; it.shadow.visible = fade > 0.01;
     });
     if(bar) bar.style.transform='scaleX('+(s/(maxI*GAP)).toFixed(4)+')';
     syncUI(clamp(Math.round(s/GAP),0,maxI));
