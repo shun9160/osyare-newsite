@@ -79,8 +79,8 @@ p{margin:0}
 .page-head p{color:var(--ink-2);margin-top:14px;max-width:38em}
 .page-head .ring{position:absolute;right:-60px;top:-80px;width:320px;height:320px;border:1px solid var(--line);border-radius:50%;pointer-events:none}
 .page-head .ring::after{content:"";position:absolute;inset:26px;border:1px solid var(--line);border-radius:50%}
-/* phones: the rings sit behind the heading text, so keep them barely there */
-@media (max-width:760px){.page-head .ring{opacity:.3}}
+/* phones: the rings would sit behind the heading text */
+@media (max-width:760px){.page-head .ring{display:none}}
 
 /* hero */
 .hero{position:relative;padding-block:clamp(56px,9vw,112px) clamp(28px,4vw,48px);overflow:hidden}.hero .wrap{display:grid;gap:22px}
