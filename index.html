@@ -293,8 +293,7 @@ body.on-line .fab{opacity:0;pointer-events:none}
 /* wash story: the shirt in the drum gets cleaner as you scroll through the services */
 .wash{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px)}
 .wash-stage{position:sticky;top:calc(64px + 6vh);height:calc(88vh - 64px);display:grid;place-content:center;justify-items:center;gap:16px}
-.wash-drum{--size:min(34vw,400px,calc(88vh - 64px - 110px));position:relative;width:var(--size);height:var(--size);border-radius:50%;background:var(--steam);overflow:hidden;border:2px solid var(--ink);box-shadow:inset 0 0 0 10px var(--bg),inset 0 0 0 11px var(--line);isolation:isolate}
-.wash-drum::after{content:"";position:absolute;inset:16px;border-radius:50%;border:1.5px dotted var(--muted);opacity:.4;z-index:4;pointer-events:none}
+.wash-drum{--size:min(34vw,400px,calc(88vh - 64px - 110px));position:relative;width:var(--size);height:var(--size);border-radius:50%;background:radial-gradient(circle,var(--steam) 0 52%,color-mix(in srgb,var(--steam) 55%,var(--bg)) 64%,var(--bg) 71%);-webkit-mask:radial-gradient(circle,#000 58%,transparent 71%);mask:radial-gradient(circle,#000 58%,transparent 71%);overflow:hidden;isolation:isolate}
 .wash-shirt{position:absolute;inset:11%;z-index:2;transition:transform 1s cubic-bezier(.3,.6,.3,1)}
 .wash-shirt img{display:block;width:100%;height:100%;object-fit:contain;filter:sepia(.55) saturate(1.5) brightness(.84) contrast(.94);transition:filter 1.6s ease}
 .wash-shirt .mask{position:absolute;inset:0;-webkit-mask:url("images/wash-shirt.webp") center/contain no-repeat;mask:url("images/wash-shirt.webp") center/contain no-repeat;pointer-events:none}
