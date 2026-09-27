@@ -114,6 +114,17 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .chip{flex:none;border:1px solid transparent;background:transparent;border-radius:999px;padding:6px 14px;font-size:12.5px;color:var(--ink-2);cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
+/* "see the price" prompts on the garments */
+.stage.over-garment{cursor:pointer}
+.g-hover{position:absolute;z-index:4;left:0;top:0;pointer-events:none;display:flex;align-items:center;gap:6px;background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:500;padding:6px 13px 6px 9px;border-radius:999px;white-space:nowrap;box-shadow:0 10px 24px -12px rgba(50,32,15,.6);opacity:0;transform:translate(16px,16px) scale(.9);transition:opacity .18s,transform .18s}
+.g-hover.on{opacity:1;transform:translate(16px,16px)}
+.g-hover svg{width:16px;height:16px}
+.g-cta{position:absolute;z-index:4;left:0;top:0;display:flex;flex-direction:column;align-items:center;gap:16px;border:none;background:none;padding:0;cursor:pointer;translate:-50% -50%;transition:opacity .3s;-webkit-tap-highlight-color:transparent}
+.g-cta.off{opacity:0;pointer-events:none}
+.g-cta .tap{position:relative;left:auto;top:auto;width:58px;height:58px}
+.g-cta .tap .ring{left:50%;top:50%}
+.g-cta .tap .hand{left:calc(50% - 12px);top:calc(50% - 4px);width:46px;height:46px}
+.g-cta-label{background:var(--ink);color:var(--bg);font-size:12px;font-weight:500;padding:5px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 10px 24px -12px rgba(50,32,15,.6)}
 /* price tag panel */
 .tag{position:absolute;z-index:5;right:max(var(--gutter),calc((100% - 1180px)/2 + var(--gutter)));top:52px;width:330px;max-width:calc(100% - 32px);background:var(--surface);border:1px solid var(--line);border-radius:6px 6px 14px 14px;box-shadow:0 30px 60px -30px rgba(50,32,15,.5);padding:28px 24px 22px;transform-origin:50% 0;animation:tagIn .55s cubic-bezier(.2,.9,.3,1.2)}
 .tag::before{content:"";position:absolute;top:12px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
@@ -644,7 +655,7 @@ img{max-width:100%}
         <div class="intro-scroll intro-l" style="--d:2.6s" aria-hidden="true"><span>Scroll</span><i></i></div>
       </div>
       <div class="line-bar"><i id="lineBar"></i></div>
-      <div class="hint" id="hint">スクロール・ドラッグで奥へ ・ 服をタップで料金</div>
+      <div class="hint" id="hint">スクロール・ドラッグで奥へ ・ 服を押すと料金が見られます</div>
       <div class="hud">
         <div class="hud-no"><span id="hudNo">01</span><small id="hudTotal">/ 05</small></div>
         <b id="curName">Ｙシャツ</b>
@@ -1321,7 +1332,7 @@ function syncUI(i){
 
 function initRack(){
   const stage = $('#stage'), section = $('#lineScroll');
-  const api = { go(){}, setActive(){}, tap(){} };
+  const api = { go(){}, setActive(){}, tap(){}, show(){} };
   const T = window.THREE;
   const N = GARMENTS.length, maxI = N-1;
   const INTRO_STEPS = 1.1;
@@ -1366,6 +1377,7 @@ function initRack(){
     const f=document.createElement('div'); f.className='fallback'; f.textContent='3D表示に対応していない環境です。下のボタンから服を選んでください。'; stage.appendChild(f);
     window.addEventListener('scroll', ()=>syncUI(Math.round(progress()*maxI)), {passive:true});
     api.tap = () => openTag(uiIndex<0?0:uiIndex);
+    api.show = i => { scrollToIndex(i); openTag(i); };
     return api;
   }
   let pixelRatio=Math.min(window.devicePixelRatio||1, MOBILE?1.5:2);
@@ -1466,7 +1478,7 @@ function initRack(){
     if(!g.noBar) hold.add(new T.Mesh(new T.TubeGeometry(bar,24,.035,8,false), barM));
     const sh=new T.Mesh(new T.PlaneGeometry(w*1.3,1.1), new T.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false,fog:true}));
     sh.rotation.x=-Math.PI/2; sh.position.set(p.x, FLOOR_Y+.005, p.z); scene.add(sh);
-    const it={pivot, hold, spinT:-1, phase:Math.random()*6, uBend:{value:0}, s:i*GAP, uFade:{value:1}, hangerMats:[hookM, barM], shadow:sh};
+    const it={h, pivot, hold, spinT:-1, phase:Math.random()*6, uBend:{value:0}, s:i*GAP, uFade:{value:1}, hangerMats:[hookM, barM], shadow:sh};
     const img=new Image();
     img.onload=()=>{
       const tex=new T.Texture(img); tex.needsUpdate=true; tex.anisotropy=renderer.capabilities.getMaxAnisotropy();
@@ -1524,7 +1536,7 @@ function initRack(){
   const pxPerItem=()=>railLen()/maxI;
   function hideHint(){ if(!hintGone){ hintGone=true; $('#hint').classList.add('gone'); } }
   window.addEventListener('scroll', ()=>{ if(window.scrollY>sectionTop()+introLen()+40) hideHint(); }, {passive:true});
-  stage.addEventListener('pointerdown', e=>{ if(e.target.closest('.hud,.chips,.tag')) return; down={x:e.clientX,y:e.clientY,lx:e.clientX,moved:false,id:e.pointerId}; });
+  stage.addEventListener('pointerdown', e=>{ if(e.target.closest('.hud,.chips,.tag,.g-cta')) return; down={x:e.clientX,y:e.clientY,lx:e.clientX,moved:false,id:e.pointerId}; });
   window.addEventListener('pointermove', e=>{
     if(!down||e.pointerId!==down.id) return;
     const dx=e.clientX-down.x, dy=e.clientY-down.y;
@@ -1554,6 +1566,45 @@ function initRack(){
   });
   function spin(i){ if(!reduce && items[i]) items[i].spinT=0; }
   api.tap = () => { spin(uiIndex); openTag(uiIndex); };
+
+  /* price prompts: a label that follows the mouse over a garment, and on touch screens a tap marker on the front garment */
+  const canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const hoverEl=document.createElement('div'); hoverEl.className='g-hover'; hoverEl.setAttribute('aria-hidden','true');
+  hoverEl.innerHTML='<svg  viewBox="0 0 64 64"><path d="M26 8c3 0 5 2 5 5v17l3-1c3-1 6 1 7 3l1 3 3-1c3 0 5 2 5 4l1 4 2-1c3 0 5 2 5 5v8c0 8-6 14-14 14H33c-5 0-9-3-11-7l-8-15c-1-3 0-6 3-7s5 0 7 2l2 3V13c0-3 2-5 5-5z" fill="#F08A3C" stroke="#4A2A12" stroke-width="2.5" stroke-linejoin="round"/></svg>クリックで料金を見る'; stage.appendChild(hoverEl);
+  const cta=document.createElement('button'); cta.type='button'; cta.className='g-cta off'; cta.setAttribute('aria-label','この服の料金を見る');
+  cta.innerHTML='<span class="tap" aria-hidden="true"><span class="ring r1"></span><span class="ring r2"></span><svg class="hand" viewBox="0 0 64 64"><path d="M26 8c3 0 5 2 5 5v17l3-1c3-1 6 1 7 3l1 3 3-1c3 0 5 2 5 4l1 4 2-1c3 0 5 2 5 5v8c0 8-6 14-14 14H33c-5 0-9-3-11-7l-8-15c-1-3 0-6 3-7s5 0 7 2l2 3V13c0-3 2-5 5-5z" fill="#F08A3C" stroke="#4A2A12" stroke-width="2.5" stroke-linejoin="round"/></svg></span><span class="g-cta-label">タップで料金を見る</span>';
+  if(!canHover) stage.appendChild(cta);
+  cta.addEventListener('click', ()=>{ spin(uiIndex); openTag(uiIndex); hideHint(); });
+  let hoverQ=null;
+  function pick(x,y){ const r=renderer.domElement.getBoundingClientRect(); mv.set(((x-r.left)/r.width)*2-1, -((y-r.top)/r.height)*2+1); ray.setFromCamera(mv,camera);
+    const h=ray.intersectObjects(scene.children,true).find(h=>h.object.userData.index!==undefined && items[h.object.userData.index].uFade.value>.5); return h ? h.object.userData.index : -1; }
+  if(canHover){
+    stage.addEventListener('pointermove', e=>{ if(e.pointerType!=='mouse'||down&&down.moved) return; hoverQ={x:e.clientX,y:e.clientY}; });
+    stage.addEventListener('pointerleave', ()=>{ hoverQ=null; hoverEl.classList.remove('on'); stage.classList.remove('over-garment'); });
+  }
+  function updateHover(){
+    if(!hoverQ) return;
+    const onUI = document.elementFromPoint(hoverQ.x,hoverQ.y)?.closest('.hud,.chips,.tag');
+    const hit = onUI ? -1 : pick(hoverQ.x,hoverQ.y), r=stage.getBoundingClientRect();
+    hoverEl.style.left=(hoverQ.x-r.left)+'px'; hoverEl.style.top=(hoverQ.y-r.top)+'px';
+    hoverEl.classList.toggle('on', hit>=0); stage.classList.toggle('over-garment', hit>=0); hoverQ=null;
+  }
+  const ctaV=new T.Vector3();
+  function updateCta(ie){
+    if(canHover) return;
+    const it=items[uiIndex], settled=it && Math.abs(s-uiIndex*GAP)<GAP*.2 && Math.abs(vel)<GAP*.6;
+    const show = ie>.95 && settled && !tagEl && !(down&&down.moved);
+    cta.classList.toggle('off', !show);
+    if(!show) return;
+    it.hold.localToWorld(ctaV.set(0,-it.h*.42,0)); ctaV.project(camera);
+    cta.style.left=((ctaV.x+1)/2*W).toFixed(1)+'px'; cta.style.top=((1-ctaV.y)/2*H).toFixed(1)+'px';
+  }
+
+  /* chips: travel to that garment, then open its price once it arrives */
+  let pendingShow=-1; window.__dbg=()=>({s, pendingShow, uiIndex, GAP, target:progress()*maxI*GAP});
+  api.show = i => { closeTag(); hideHint(); if(i===uiIndex && Math.abs(s-i*GAP)<GAP*.2){ spin(i); openTag(i); return; } pendingShow=i; scrollToIndex(i); };
+  function updatePending(){ if(pendingShow>=0 && uiIndex===pendingShow && Math.abs(s-pendingShow*GAP)<GAP*.15){ spin(pendingShow); openTag(pendingShow); pendingShow=-1; } }
+  addEventListener('wheel', ()=>{ pendingShow=-1; }, {passive:true}); addEventListener('touchstart', ()=>{ pendingShow=-1; }, {passive:true});
 
   /* loop */
   let active=true, visible=true, last=performance.now(), s=0, prevS=0, vel=0, ip=introProgress(), slow=0;
@@ -1596,6 +1647,7 @@ function initRack(){
     });
     if(bar) bar.style.transform='scaleX('+(s/(maxI*GAP)).toFixed(4)+')';
     syncUI(clamp(Math.round(s/GAP),0,maxI));
+    updatePending(); updateCta(ie); updateHover();
     if(ie>0.005) renderer.render(scene,camera);
   }
   requestAnimationFrame(frame);
@@ -1605,7 +1657,7 @@ function initRack(){
 
 const rack = initRack(); window.__rack = rack;
 $('#currentBtn').addEventListener('click', ()=>rack.tap());
-$('#chips').addEventListener('click', e=>{ const c=e.target.closest('.chip'); if(c){ rack.go(+c.dataset.i); }});
+$('#chips').addEventListener('click', e=>{ const c=e.target.closest('.chip'); if(c){ rack.show(+c.dataset.i); }});
 syncUI(0);
 route(); parallax();
 })();
