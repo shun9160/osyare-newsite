@@ -350,6 +350,42 @@ body.on-line .fab{opacity:0;pointer-events:none}
 @media (max-width:420px){.craft{grid-template-columns:1fr}}
 .others{margin-top:28px;border-top:1px solid var(--line);padding-top:22px;display:grid;gap:10px}
 .others-lead{color:var(--ink-2);font-size:14px}
+/* other items: a cleaning-shop conveyor carrying tagged items */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.belt{--oh:150px;position:relative;overflow:hidden;padding-top:10px;margin-top:6px}
+.belt::before,.belt::after{content:"";position:absolute;top:0;bottom:0;width:48px;z-index:2;pointer-events:none}
+.belt::before{left:0;background:linear-gradient(90deg,var(--bg),rgba(250,249,247,0))}
+.belt::after{right:0;background:linear-gradient(270deg,var(--bg),rgba(250,249,247,0))}
+.belt-rail{position:absolute;left:0;right:0;top:calc(var(--oh) + 10px);height:16px;border-radius:8px;overflow:hidden;background:#D9D1C7;box-shadow:0 8px 14px -8px rgba(50,32,15,.35)}
+.belt-rail::before{content:"";position:absolute;top:0;bottom:0;left:0;width:calc(100% + 48px);background:repeating-linear-gradient(90deg,#D9D1C7 0 22px,#C9C0B5 22px 24px);animation:beltLines 1.2s linear infinite}
+.belt-track{display:flex;gap:26px;width:max-content;padding-inline:13px;animation:beltMove 42s linear infinite}
+.belt:hover .belt-track,.belt.hold .belt-track,.belt.idle .belt-track,.belt.idle .belt-rail::before,.belt.idle .belt-tag{animation-play-state:paused}
+.belt-item{flex:0 0 190px;display:grid;justify-items:center}
+.belt-obj{height:var(--oh);width:100%;display:grid;place-items:end center}
+.belt-obj img{max-width:172px;max-height:calc(var(--oh) - 10px);width:auto;height:auto;object-fit:contain;filter:drop-shadow(0 14px 10px rgba(50,32,15,.25));transition:transform .35s}
+.belt-item:hover .belt-obj img{transform:translateY(-10px)}
+.belt-tag{position:relative;margin-top:30px;margin-bottom:6px;background:var(--surface);border:1px solid var(--line);border-radius:4px 4px 10px 10px;padding:14px 14px 8px;font-size:13px;font-weight:500;text-align:center;min-width:120px;box-shadow:0 8px 16px -12px rgba(50,32,15,.4);transform-origin:50% -26px;animation:tagSway 3.2s ease-in-out infinite;animation-delay:calc(var(--i) * -.4s)}
+.belt-tag::before{content:"";position:absolute;left:50%;top:5px;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
+.belt-tag::after{content:"";position:absolute;left:50%;top:-26px;width:1px;height:31px;background:var(--muted)}
+.belt-tag small{display:block;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);font-weight:400}
+.belt-note{font-size:11.5px;color:var(--muted);margin-top:4px}
+@keyframes beltMove{to{transform:translateX(-50%)}}
+@keyframes beltLines{to{transform:translateX(-24px)}}
+@keyframes tagSway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@media (max-width:640px){.belt{--oh:118px}.belt-item{flex-basis:150px}.belt-obj img{max-width:136px}.belt-track{gap:18px}.belt::before,.belt::after{width:24px}}
+@media (prefers-reduced-motion:reduce){
+  .belt-track{animation:none;width:auto;flex-wrap:wrap;justify-content:center}
+  .belt-item:nth-child(n+8){display:none}
+  .belt-rail{display:none}
+  .belt-rail::before,.belt-tag{animation:none}
+}
+:root[data-theme="dark"] .belt::before{background:linear-gradient(90deg,var(--bg),rgba(22,17,13,0))}
+:root[data-theme="dark"] .belt::after{background:linear-gradient(270deg,var(--bg),rgba(22,17,13,0))}
+:root[data-theme="dark"] .belt-rail,:root[data-theme="dark"] .belt-rail::before{background-color:#3A3029}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .belt::before{background:linear-gradient(90deg,var(--bg),rgba(22,17,13,0))}
+  :root:not([data-theme="light"]) .belt::after{background:linear-gradient(270deg,var(--bg),rgba(22,17,13,0))}
+}
 /* wash story: the shirt in the drum gets cleaner as you scroll through the services */
 .wash{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px)}
 .wash-stage{position:sticky;top:calc(64px + 6vh);height:calc(88vh - 64px);display:grid;place-content:center;justify-items:center;gap:16px}
@@ -715,7 +751,7 @@ window.DBG=(function(){
     <div class="others reveal">
       <p class="eyebrow">Others</p>
       <p class="others-lead">衣類のほかにも、さまざまなお品物のクリーニングを手がけています。お気軽にご相談ください。</p>
-      <div class="badges big" id="othersTop"></div>
+      <div class="belt" data-belt></div><p class="belt-note">カーソルを当てる・指で触れると止まります</p>
     </div>
   </div>
 
@@ -776,7 +812,7 @@ window.DBG=(function(){
     <div class="others">
       <p class="eyebrow">Others</p>
       <p class="others-lead">その他さまざまな取り扱い。ご気軽にご相談ください。</p>
-      <div class="badges big" id="othersAbout"></div>
+      <div class="belt" data-belt></div><p class="belt-note">カーソルを当てる・指で触れると止まります</p>
     </div>
   </div>
   <div class="wrap" style="padding-bottom:40px">
@@ -1163,8 +1199,20 @@ $('#craftAbout').innerHTML = craftHTML();
   items.forEach(el=>io.observe(el));
   const wash=$('#wash'); new IntersectionObserver(es=>wash.classList.toggle('idle',!es[0].isIntersecting)).observe(wash);
 })();
-const othersHTML = OTHERS.map(o=>'<span>'+o+'</span>').join('');
-$('#othersTop').innerHTML = othersHTML; $('#othersAbout').innerHTML = othersHTML;
+const OTHER_IMG = {'布団':'futon','ジュータン・カーペット':'carpet','着物':'kimono','皮革製品':'leather','ぬいぐるみ':'toy','ブランドバッグ・財布':'bag','靴・ブーツ':'shoes'};
+function beltHTML(){
+  const one=(o,i)=>'<div class="belt-item" style="--i:'+i+'"><div class="belt-obj"><img src="images/other-'+OTHER_IMG[o]+'.webp" alt="" loading="lazy" decoding="async"></div><div class="belt-tag"><small>No.'+String(i+1).padStart(3,'0')+'</small>'+o+'</div></div>';
+  const items=OTHERS.map(one).join('');
+  // two copies so the belt loops without a seam; screen readers get the plain list
+  return '<ul class="sr-only">'+OTHERS.map(o=>'<li>'+o+'</li>').join('')+'</ul><div class="belt-rail" aria-hidden="true"></div><div class="belt-track" aria-hidden="true">'+items+items+'</div>';
+}
+document.querySelectorAll('[data-belt]').forEach(el=>{
+  el.innerHTML=beltHTML();
+  el.addEventListener('touchstart',()=>el.classList.add('hold'),{passive:true});
+  el.addEventListener('touchend',()=>el.classList.remove('hold'),{passive:true});
+  el.addEventListener('touchcancel',()=>el.classList.remove('hold'),{passive:true});
+  new IntersectionObserver(es=>el.classList.toggle('idle',!es[0].isIntersecting)).observe(el);
+});
 
 function newsItem(n,i,prefix){
   return '<li><button class="news-row" aria-expanded="false" aria-controls="'+prefix+i+'"><span class="n-date">'+n.d+'</span><span class="n-cat">'+n.c+'</span><span class="n-title">'+n.t+'</span><span class="n-plus">+</span></button><div class="n-body" id="'+prefix+i+'" hidden>'+n.b+'</div></li>';
