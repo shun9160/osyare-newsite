@@ -440,9 +440,61 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0}
 img{max-width:100%}
 [hidden]{display:none!important}
+/* loading: a washing-machine window fills with water around the logo */
+.loader{display:none}
+.is-loading .loader,.loader.done{position:fixed;inset:0;z-index:100;display:grid;place-content:center;justify-items:center;gap:22px;background:var(--bg);color:var(--ink);transition:opacity .7s ease,visibility .7s}
+.loader.done{opacity:0;visibility:hidden;pointer-events:none}
+.is-loading{overflow:hidden}
+.is-loading .intro-l,.is-loading .intro-scroll i{animation-play-state:paused}
+.ld-drum{--size:clamp(132px,34vw,168px);position:relative;width:var(--size);height:var(--size);border-radius:50%;border:2px solid var(--ink);box-shadow:inset 0 0 0 7px var(--bg),inset 0 0 0 8px var(--line);overflow:hidden;isolation:isolate;transition:transform .7s cubic-bezier(.5,0,.2,1)}
+.loader.done .ld-drum{transform:scale(1.08)}
+.ld-drum::after{content:"";position:absolute;inset:14px;border-radius:50%;border:1.5px dotted var(--muted);opacity:.55;animation:ldSpin 6s linear infinite;z-index:3}
+.ld-water{position:absolute;left:0;right:0;bottom:0;height:var(--lv,12%);background:var(--ld-water);transition:height 1.6s cubic-bezier(.3,.6,.3,1);z-index:1}
+.ld-wave{position:absolute;left:0;bottom:100%;width:200%;height:12px;margin-bottom:-1px;color:var(--ld-water);animation:ldWave 1.8s linear infinite}
+.ld-wave svg{display:block;width:100%;height:100%}
+.ld-drum .logo-mark{position:absolute;inset:0;margin:auto;width:58%;height:58%;z-index:2}
+.ld-drum i{position:absolute;bottom:-12px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.45);box-shadow:0 0 0 .5px var(--suds-rim);z-index:2;animation:ldBubble var(--t,2.4s) ease-in infinite;animation-delay:var(--d,0s);opacity:0}
+.ld-name{display:flex;font-family:var(--f-display);font-weight:700;font-size:clamp(20px,5vw,24px);letter-spacing:.2em;margin-right:-.2em}
+.ld-name span{animation:ldChar .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(.25s + var(--i) * .08s)}
+.ld-sub{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.3em;margin-right:-.3em;text-transform:uppercase;color:var(--muted);margin-top:-12px;animation:ldChar .8s .9s both}
+:root{--ld-water:rgba(150,190,208,.42)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ld-water:rgba(120,160,178,.3)}}
+:root[data-theme="dark"]{--ld-water:rgba(120,160,178,.3)}
+@keyframes ldWave{to{transform:translateX(-50%)}}
+@keyframes ldSpin{to{transform:rotate(360deg)}}
+@keyframes ldBubble{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(calc(var(--size) * -1.05)) scale(1);opacity:0}}
+@keyframes ldChar{from{opacity:0;transform:translateY(10px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@media (prefers-reduced-motion:reduce){.ld-drum::after,.ld-wave,.ld-drum i,.ld-name span,.ld-sub{animation:none}.ld-drum i{display:none}.ld-water{transition:none}}
 </style>
+<script>document.documentElement.classList.add('is-loading')</script>
 </head>
 <body>
+<div class="loader" id="loader" role="status" aria-label="読み込み中">
+  <div class="ld-drum" aria-hidden="true">
+    <span class="ld-water"><span class="ld-wave"><svg viewBox="0 0 200 12" preserveAspectRatio="none"><path fill="currentColor" d="M0 6Q25 0 50 6T100 6T150 6T200 6V12H0Z"/></svg></span></span>
+    <span class="logo-mark"></span>
+    <i style="--x:22%;--s:8px;--d:0s;--t:2.4s"></i><i style="--x:38%;--s:5px;--d:0.7s;--t:2.1s"></i><i style="--x:55%;--s:10px;--d:1.2s;--t:2.8s"></i><i style="--x:70%;--s:6px;--d:0.3s;--t:2.2s"></i><i style="--x:80%;--s:7px;--d:1.6s;--t:2.6s"></i><i style="--x:30%;--s:4px;--d:1.9s;--t:2.0s"></i>
+  </div>
+  <p class="ld-name" aria-label="おしゃれ倶楽部"><span style="--i:0">お</span><span style="--i:1">し</span><span style="--i:2">ゃ</span><span style="--i:3">れ</span><span style="--i:4">倶</span><span style="--i:5">楽</span><span style="--i:6">部</span></p>
+  <p class="ld-sub">Cleaning &amp; Stain Care</p>
+</div>
+<script>
+(function(){
+  var root=document.documentElement, el=document.getElementById('loader'), water=el.querySelector('.ld-water');
+  var start=Date.now(), MIN=1800, MAX=8000, finished=false;
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ water.style.setProperty('--lv','72%'); }); });
+  function finish(){
+    if(finished) return; finished=true;
+    water.style.transition='height .6s cubic-bezier(.4,0,.2,1)'; water.style.setProperty('--lv','100%');
+    setTimeout(function(){
+      el.classList.add('done'); root.classList.remove('is-loading');
+      setTimeout(function(){ el.remove(); }, 800);
+    }, 650);
+  }
+  window.addEventListener('load', function(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); });
+  setTimeout(finish, MAX);
+})();
+</script>
 <header class="hdr">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="おしゃれ倶楽部 トップ">
