@@ -1744,7 +1744,7 @@ function initRack(){
   const camPos=new T.Vector3(), look=new T.Vector3();
   function frame(now){
     requestAnimationFrame(frame);
-    if(!active||!visible){ last=now; return; }
+    if(!active||!visible){ last=now; fpsN=0; fpsT=now; return; }
     const dt=Math.min(.05,(now-last)/1000); last=now; uTime.value+=dt;
     const target=progress()*maxI*GAP;
     const ipT=introProgress(); ip += (ipT-ip)*(reduce?1:Math.min(1,dt*6));
