@@ -44,6 +44,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 a{color:inherit}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.nw{display:inline-block}
 .wrap{max-width:1180px;margin-inline:auto;padding-inline:var(--gutter)}
 h1,h2,h3{font-family:var(--f-display);font-weight:700;text-wrap:balance;line-height:1.35;margin:0;letter-spacing:.02em}
 p{margin:0}
@@ -105,7 +106,7 @@ p{margin:0}
 .fallback{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;padding:24px}
 body.on-line .fab{opacity:0;pointer-events:none}
 .fab{transition:opacity .3s}
-@media (max-width:640px){.hud{bottom:70px}.hud .eyebrow{display:none}.hud-no{font-size:44px}.hud > span{margin-bottom:4px}.hud{top:56px;bottom:auto;gap:2px}.hud b{font-size:18px}.hint{top:auto;bottom:66px}}
+@media (max-width:640px){.hud .eyebrow{display:none}.hud-no{font-size:26px;align-items:baseline}.hud-no small{font-size:12px}.hud > span{margin-bottom:2px;font-size:12px}.hud{top:14px;bottom:auto;gap:0}.hud b{font-size:17px}.hud-link{margin-top:2px}.hint{top:auto;bottom:66px}}
 
 .chips{display:flex;gap:8px;overflow-x:auto;padding:14px var(--gutter) 6px;scrollbar-width:none;justify-content:safe center}
 .chips::-webkit-scrollbar{display:none}
@@ -177,6 +178,49 @@ body.on-line .fab{opacity:0;pointer-events:none}
 
 .filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
 
+/* store map (top page) */
+.smap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(18px,3vw,36px);align-items:start}
+.smap-map{position:relative;background:var(--linen);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.smap-map svg{display:block;width:100%;height:auto}
+.smap-river{fill:none;stroke:color-mix(in srgb,var(--steam),#7FA6BA 45%);stroke-width:9;stroke-linecap:round}
+.smap-rail{fill:none;stroke:var(--muted);stroke-width:2.2}
+.smap-tie{fill:none;stroke:var(--linen);stroke-width:1.4;stroke-dasharray:3 7}
+.smap-city{font-family:var(--f-display);font-size:22px;font-weight:700;fill:var(--line);letter-spacing:.3em}
+.smap-small{font-size:9.5px;fill:var(--muted);letter-spacing:.1em}
+.smap-draw{stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset 2s ease}
+.smap:not(.play) .smap-draw{stroke-dashoffset:1;transition:none}
+.smap-pin{cursor:pointer;outline:none;transition:opacity .4s}
+.smap-pin .drop{transition:transform .6s cubic-bezier(.3,1.6,.5,1),opacity .4s;transform-box:fill-box;transform-origin:50% 100%}
+.smap:not(.play) .smap-pin .drop{transform:translateY(-30px);opacity:0;transition:none}
+.smap-pin .hit{fill:transparent}
+.smap-pin .head{fill:var(--surface);stroke:var(--ink);stroke-width:1.6}
+.smap-pin .dot{fill:var(--muted)}
+.smap-pin.open .dot{fill:#7FA86B}
+.smap-pin .halo{fill:#7FA86B;opacity:0;transform-box:fill-box;transform-origin:center}
+.smap-pin.open .halo{animation:smapHalo 2.2s ease-out infinite}
+.smap-pin.sel .head{fill:var(--ink)}
+.smap-pin.sel .dot{fill:var(--bg)}
+.smap-pin:focus-visible .head{stroke:var(--accent);stroke-width:3}
+.smap-pin .lbl{font-size:11px;fill:var(--ink-2);font-weight:500;paint-order:stroke;stroke:var(--linen);stroke-width:3px;opacity:0;transition:opacity .2s}
+.smap-pin:hover .lbl,.smap-pin.sel .lbl{opacity:1}
+.smap-pin.dim{opacity:.18}
+@keyframes smapHalo{0%{opacity:.5;transform:scale(.4)}100%{opacity:0;transform:scale(2.4)}}
+.smap-note{position:absolute;left:12px;bottom:8px;font-size:10.5px;color:var(--muted)}
+.smap-side{display:grid;gap:14px;min-width:0}
+.smap-filter{display:flex;flex-wrap:wrap;gap:6px}
+.smap-filter button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;color:var(--ink-2)}
+.smap-filter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.smap-card .store{box-shadow:var(--shadow);animation:smapIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes smapIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.smap-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);max-height:264px;overflow:auto}
+.smap-list button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 6px;border:none;border-bottom:1px solid var(--line);background:none;cursor:pointer;text-align:left;font-size:14px;color:var(--ink)}
+.smap-list button:hover,.smap-list button[aria-current="true"]{background:var(--linen)}
+.smap-list small{color:var(--muted);font-size:11.5px;margin-left:6px}
+.smap-list .open-now{font-size:12px;display:flex;align-items:center;gap:6px;color:var(--ink-2);flex:none}
+.smap-list .open-now i{width:8px;height:8px;border-radius:50%;background:#7FA86B}
+.smap-list .open-now.closed i{background:var(--muted)}
+@media (max-width:860px){.smap{grid-template-columns:1fr}.smap-list{max-height:none}}
+@media (prefers-reduced-motion:reduce){.smap-draw,.smap-pin .drop{transition:none}.smap-pin.open .halo{animation:none}}
 .stores{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
 .store{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px}
 .store .s-no{font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:.14em}
@@ -611,7 +655,7 @@ img{max-width:100%}
     <div class="big" data-parallax="-0.12" aria-hidden="true">Life is a series of choices</div>
     <div class="wrap">
       <p class="eyebrow">Our Mission</p>
-      <blockquote class="reveal" style="margin-top:14px">選択一つで人生は変わるように、<br>洗濯一つで服は輝きを取り戻します。</blockquote>
+      <blockquote class="reveal" style="margin-top:14px"><span class="nw">選択一つで</span><span class="nw">人生は変わるように、</span><br><span class="nw">洗濯一つで</span><span class="nw">服は輝きを</span><span class="nw">取り戻します。</span></blockquote>
       <p class="reveal">あなたの毎日を彩る、大切な瞬間を支える一助に。あなたの毎日をもっと素敵に。</p>
       <a class="btn ghost reveal" href="#about" style="margin-top:22px">おしゃれ倶楽部について</a>
     </div>
@@ -619,7 +663,7 @@ img{max-width:100%}
 
   <div class="wrap sec">
     <div class="sec-head">
-      <div><p class="eyebrow">Wash · Finish · Care</p><h2>こだわりの洗い・仕上げ・加工</h2></div>
+      <div><p class="eyebrow">Wash · Finish · Care</p><h2><span class="nw">こだわりの洗い・</span><span class="nw">仕上げ・加工</span></h2></div>
       <a class="btn ghost sm" href="#about">詳しく見る</a>
     </div>
     <div class="wash" id="wash">
@@ -659,7 +703,14 @@ img{max-width:100%}
       <div><p class="eyebrow">Stores</p><h2>店舗情報</h2></div>
       <a class="btn ghost sm" href="#stores">11店舗すべて見る</a>
     </div>
-    <div class="stores" id="storesTop"></div>
+    <div class="smap play" id="smap">
+      <div class="smap-map"><svg id="smapSvg" viewBox="0 0 600 470" role="img" aria-label="店舗の位置を示すエリア地図"></svg><span class="smap-note">位置はおおよそのイメージです</span></div>
+      <div class="smap-side">
+        <div class="smap-filter" id="smapFilter" role="group" aria-label="市で絞り込む"></div>
+        <div class="smap-card" id="smapCard" aria-live="polite"></div>
+        <ul class="smap-list" id="smapList"></ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -696,7 +747,7 @@ img{max-width:100%}
     </div>
   </div>
   <div class="wrap" style="padding-bottom:56px">
-    <div class="sec-head"><div><p class="eyebrow">Wash · Finish · Care</p><h2>こだわりの洗い・仕上げ・加工</h2></div></div>
+    <div class="sec-head"><div><p class="eyebrow">Wash · Finish · Care</p><h2><span class="nw">こだわりの洗い・</span><span class="nw">仕上げ・加工</span></h2></div></div>
     <div class="craft" id="craftAbout"></div>
     <div class="others">
       <p class="eyebrow">Others</p>
@@ -1099,7 +1150,52 @@ function storeCard(s,i){
   '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.osyareclub.com/tenpo/'+s.slug+'/">店舗ページ</a>'+
   '<button class="btn ghost sm copy" data-copy="'+s.tel+'" data-label="電話番号をコピー">電話番号をコピー</button></div></article>';
 }
-$('#storesTop').innerHTML = STORES.slice(0,3).map(storeCard).join('');
+/* store map (top page) */
+(function(){
+  const svgEl=$('#smapSvg'); if(!svgEl) return;
+  const LL={ebinaeki:[35.4510,139.3905],rokkaieki:[35.3745,139.4665],shounandai:[35.3935,139.4720],mirokuji:[35.3510,139.4745],zenkou:[35.3620,139.4640],atsugiasahi:[35.4320,139.3700],atsugitomuro:[35.4235,139.3390],soubudai:[35.5045,139.4040],zamairiya:[35.4760,139.3950],yamatochuou:[35.4700,139.4600],senbonzakura:[35.4300,139.4560]};
+  const X=lon=>(lon-139.305)/(139.505-139.305)*600, Y=lat=>(35.525-lat)/(35.525-35.335)*470;
+  const line=a=>'M'+a.map(p=>X(p[1]).toFixed(1)+' '+Y(p[0]).toFixed(1)).join('L');
+  const odawara=[[35.530,139.418],[35.5045,139.4045],[35.4870,139.3990],[35.4760,139.3950],[35.4520,139.3920],[35.4400,139.3640],[35.4250,139.3420],[35.405,139.318]];
+  const enoshima=[[35.530,139.470],[35.4700,139.4610],[35.4480,139.4600],[35.4300,139.4600],[35.4110,139.4670],[35.3940,139.4680],[35.3750,139.4660],[35.3630,139.4650],[35.345,139.478],[35.332,139.485]];
+  const river=[[35.530,139.372],[35.500,139.380],[35.470,139.377],[35.445,139.378],[35.420,139.383],[35.390,139.378],[35.360,139.385],[35.332,139.389]];
+  const cities=[['座間',35.498,139.418],['海老名',35.458,139.405],['厚木',35.447,139.318],['大和',35.488,139.470],['藤沢',35.382,139.482]];
+  const area=s=>s.addr.replace(/^神奈川県.+?市/,'').replace(/\s.*$/,'').replace(/(丁目).*$/,'$1').replace(/\d[\d-]*$/,'');
+  let svg='<path class="smap-river smap-draw" pathLength="1" d="'+line(river)+'"/>'+
+    '<text class="smap-small" x="'+X(139.372).toFixed(0)+'" y="'+Y(35.395).toFixed(0)+'" transform="rotate(-84 '+X(139.372).toFixed(0)+' '+Y(35.395).toFixed(0)+')">相模川</text>'+
+    cities.map(c=>'<text class="smap-city" x="'+X(c[2]).toFixed(0)+'" y="'+Y(c[1]).toFixed(0)+'">'+c[0]+'</text>').join('')+
+    [odawara,enoshima].map(r=>'<path class="smap-rail smap-draw" pathLength="1" d="'+line(r)+'"/><path class="smap-tie" d="'+line(r)+'"/>').join('')+
+    '<text class="smap-small" x="'+X(139.330).toFixed(0)+'" y="'+Y(35.412).toFixed(0)+'">小田急小田原線</text>'+
+    '<text class="smap-small" x="'+X(139.472).toFixed(0)+'" y="'+Y(35.505).toFixed(0)+'">小田急江ノ島線</text>';
+  svg+=STORES.map((s,i)=>{ const ll=LL[s.slug], x=X(ll[1]).toFixed(1), y=Y(ll[0]).toFixed(1), open=openState(s).includes('営業時間内');
+    return '<g class="smap-pin'+(open?' open':'')+'" data-i="'+i+'" tabindex="0" role="button" aria-label="'+s.name+'" transform="translate('+x+' '+y+')"><g class="drop" style="transition-delay:'+(.8+i*.09).toFixed(2)+'s">'+
+      '<circle class="hit" cx="0" cy="-15" r="22"/><circle class="halo" cx="0" cy="-17" r="9"/><path class="head" d="M0 0C-3-6-10-10-10-17a10 10 0 0 1 20 0C10-10 3-6 0 0z"/><circle class="dot" cx="0" cy="-17" r="3.6"/>'+
+      '<text class="lbl" x="'+(ll[1]>139.44?-13:13)+'" y="-13" text-anchor="'+(ll[1]>139.44?'end':'start')+'">'+s.name+'</text></g></g>'; }).join('');
+  svgEl.innerHTML=svg;
+  const pins=[...svgEl.querySelectorAll('.smap-pin')];
+  const CITIES=['すべて',...new Set(STORES.map(s=>s.city))]; let city='すべて', sel=0;
+  function render(){
+    $('#smapFilter').innerHTML=CITIES.map(c=>'<button type="button" aria-pressed="'+(c===city)+'">'+c+'</button>').join('');
+    const list=STORES.map((s,i)=>[s,i]).filter(([s])=>city==='すべて'||s.city===city);
+    if(!list.some(([,i])=>i===sel)) sel=list[0][1];
+    $('#smapList').innerHTML=list.map(([s,i])=>'<li><button type="button" data-i="'+i+'" aria-current="'+(i===sel)+'"><span>'+s.name+'<small>'+area(s)+'</small></span>'+openState(s)+'</button></li>').join('');
+    pins.forEach(p=>{ const i=+p.dataset.i; p.classList.toggle('sel',i===sel); p.classList.toggle('dim',!(city==='すべて'||STORES[i].city===city)); });
+    $('#smapCard').innerHTML=storeCard(STORES[sel]).replace(' reveal','');
+  }
+  const pick=i=>{ sel=i; if(city!=='すべて'&&STORES[i].city!==city) city='すべて'; render(); };
+  $('#smapFilter').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ city=b.textContent; render(); } });
+  $('#smapList').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) pick(+b.dataset.i); });
+  svgEl.addEventListener('click',e=>{ const p=e.target.closest('.smap-pin'); if(p) pick(+p.dataset.i); });
+  svgEl.addEventListener('keydown',e=>{ const p=e.target.closest('.smap-pin'); if(p&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); pick(+p.dataset.i); } });
+  render();
+  // the pins drop in when the map first comes into view
+  const box=$('#smap');
+  if(!reduce && box.getBoundingClientRect().top>innerHeight){
+    box.classList.remove('play');
+    const io=new IntersectionObserver(es=>{ if(es[0].isIntersecting){ box.classList.add('play'); io.disconnect(); } },{threshold:.25});
+    io.observe(box);
+  }
+})();
 let storeCity = 'すべて';
 function renderStores(){
   const cities = ['すべて',...new Set(STORES.map(s=>s.city))];
@@ -1452,7 +1548,7 @@ function initRack(){
     mouse.x+=(mouse.tx-mouse.x)*Math.min(1,dt*3); mouse.y+=(mouse.ty-mouse.y)*Math.min(1,dt*3);
     const narrow = W/H < .8;
     const p=P(s);
-    camPos.copy(p).addScaledVector(DIR, (narrow?-5.8:-5.9) - (1-ie)*4.5).add(new T.Vector3((narrow?-1.05:-1.7)+mouse.x*.35, -.95-mouse.y*.2 + (1-ie)*1.6, 0));
+    camPos.copy(p).addScaledVector(DIR, (narrow?-6.5:-5.9) - (1-ie)*4.5).add(new T.Vector3((narrow?-1.05:-1.7)+mouse.x*.35, -.95-mouse.y*.2 + (1-ie)*1.6, 0));
     look.copy(p).addScaledVector(DIR, 1.2).add(new T.Vector3(narrow?.05:.55,narrow?-1.05:-.95,0));
     camera.position.copy(camPos); camera.lookAt(look);
     items.forEach((it,i)=>{
