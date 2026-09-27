@@ -95,6 +95,7 @@ p{margin:0}
 .stage{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));height:calc(100vh - 64px);height:calc(100svh - 64px - env(safe-area-inset-top,0px));min-height:460px;overflow:hidden;touch-action:pan-y;cursor:grab;outline:none;background:var(--bg)}
 .stage.dragging{cursor:grabbing}
 .stage canvas{display:block;width:100%;height:100%}
+.stage-veil{position:absolute;inset:0;z-index:1;background:var(--bg);pointer-events:none}
 .line-bar{position:absolute;left:0;right:0;top:0;height:2px;background:var(--line);z-index:3}
 .line-bar i{position:absolute;inset:0;background:var(--ink);transform-origin:0 50%;transform:scaleX(0)}
 .hint{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);background:var(--surface);background:color-mix(in srgb,var(--surface) 80%,transparent);border:1px solid var(--line);padding:4px 14px;border-radius:999px;white-space:nowrap;z-index:2;pointer-events:none;transition:opacity .6s}
@@ -1484,12 +1485,12 @@ function initRack(){
   const introEl = $('#intro');
   function paintIntro(){
     const ip = introProgress();
-    const o = clamp(1 - ip*1.9, 0, 1);
+    const o = clamp(1 - (ip-.08)*2.6, 0, 1);
     introEl.style.opacity = o.toFixed(3);
     introEl.style.transform = reduce ? '' : 'translateY('+(-ip*40).toFixed(1)+'px)';
     introEl.style.filter = (reduce||MOBILE) ? '' : 'blur('+(ip*6).toFixed(2)+'px)';
     introEl.style.visibility = o<=0 ? 'hidden' : 'visible';
-    stage.classList.toggle('in-intro', ip < .85);
+    stage.classList.toggle('in-intro', ip < .55);
     return ip;
   }
   window.addEventListener('scroll', ()=>requestAnimationFrame(paintIntro), {passive:true});
@@ -1511,8 +1512,9 @@ function initRack(){
   let pending=GARMENTS.length, markReady;
   const ready=new Promise(r=>markReady=r);
   if(window.__loaderWait) window.__loaderWait(ready);
-  const garmentDone=()=>{ DBG.log('garment ready ('+(GARMENTS.length-pending+1)+'/'+GARMENTS.length+')'); if(--pending>0) return; try{ renderer.compile(scene,camera); }catch(e){} requestAnimationFrame(()=>markReady()); };
+  const garmentDone=()=>{ DBG.log('garment ready ('+(GARMENTS.length-pending+1)+'/'+GARMENTS.length+')'); if(--pending>0) return; try{ renderer.compile(scene,camera); renderer.render(scene,camera); }catch(e){} requestAnimationFrame(()=>markReady()); };
   stage.insertBefore(renderer.domElement, stage.firstChild);
+  const veil=document.createElement('div'); veil.className='stage-veil'; renderer.domElement.after(veil);
   renderer.domElement.addEventListener('webglcontextlost', e=>{ e.preventDefault(); DBG.log('webgl context lost'); }, false);
   renderer.domElement.addEventListener('webglcontextrestored', ()=>{ DBG.log('webgl context restored'); }, false);
   const scene = new T.Scene();
@@ -1721,7 +1723,7 @@ function initRack(){
   function updateCta(ie){
     if(canHover) return;
     const it=items[uiIndex], settled=it && Math.abs(s-uiIndex*GAP)<GAP*.2 && Math.abs(vel)<GAP*.6;
-    const show = ie>.95 && settled && !tagEl && !(down&&down.moved);
+    const show = ie>.95 && !stage.classList.contains('in-intro') && settled && !tagEl && !(down&&down.moved);
     cta.classList.toggle('off', !show);
     if(!show) return;
     it.hold.localToWorld(ctaV.set(0,-it.h*.42,0)); ctaV.project(camera);
@@ -1746,8 +1748,8 @@ function initRack(){
     const dt=Math.min(.05,(now-last)/1000); last=now; uTime.value+=dt;
     const target=progress()*maxI*GAP;
     const ipT=introProgress(); ip += (ipT-ip)*(reduce?1:Math.min(1,dt*6));
-    const ie = 1-Math.pow(1-clamp((ip-.25)/.75,0,1),3);
-    renderer.domElement.style.opacity = ie.toFixed(3);
+    const ie = 1-Math.pow(1-clamp((ip-.04)/.46,0,1),3);
+    veil.style.opacity = (1-ie).toFixed(3);
     if(MOBILE && pixelRatio>1){ slow = dt>1/40 ? slow+dt : Math.max(0, slow-dt*.5); if(slow>1.2){ pixelRatio=1; renderer.setPixelRatio(1); resize(true); } }
     prevS=s; s += (target-s)*(reduce?1:Math.min(1,dt*5));
     const v=(s-prevS)/Math.max(dt,.001); vel += (v-vel)*Math.min(1,dt*5);
