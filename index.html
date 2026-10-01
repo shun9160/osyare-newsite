@@ -308,6 +308,12 @@ body.on-line .fab{opacity:0;pointer-events:none}
 .opt .p{font-family:var(--f-mono);color:var(--accent);font-size:15px}
 .opt p{font-size:13px;color:var(--ink-2);margin-top:4px}
 .note{font-size:12.5px;color:var(--muted);margin-top:10px}
+/* privacy policy */
+.policy{max-width:46em}
+.policy h2{font-size:20px;margin:40px 0 10px}
+.policy p,.policy li{color:var(--ink-2)}
+.policy ul{padding-left:1.3em;margin:10px 0}
+.policy .sign{margin-top:40px;text-align:right;font-size:13.5px;color:var(--muted)}
 @media (max-width:860px){.price-layout{grid-template-columns:1fr;gap:10px}.price-nav{position:static;flex-direction:row;overflow-x:auto;padding-bottom:6px}.price-nav a{white-space:nowrap;border:1px solid var(--line);border-radius:999px}}
 
 /* about */
@@ -928,6 +934,40 @@ window.DBG=(function(){
 </section>
 
 <!-- ============ CONTACT ============ -->
+<!-- ============ PRIVACY POLICY ============ -->
+<section class="page" id="page-policy" data-name="policy" hidden>
+  <div class="page-head"><div class="ring" data-parallax="0.1"></div>
+    <div class="wrap"><p class="eyebrow">Privacy policy</p><h1>プライバシーポリシー</h1>
+    <p>当社は、個人情報を大切に保護することを企業の重要な社会的使命であると認識し、お客様の個人情報保護に関する法令、国が定める指針およびその他の規範を遵守いたします。</p></div>
+  </div>
+  <div class="wrap sec" style="padding-top:20px">
+    <div class="policy">
+      <h2>個人情報の定義</h2>
+      <p>個人情報とは、個人に関する情報であり、当該情報に含まれる氏名、生年月日、性別、電話番号、電子メールアドレス、職業等、特定の個人を識別することができるものを指します。</p>
+      <h2>個人情報の収集・利用</h2>
+      <p>当社は、以下の目的のため、その範囲内においてのみ、個人情報を収集・利用いたします。当社による個人情報の収集・利用は、お客様の自発的な提供によるものであり、お客様が個人情報を提供された場合は、当社が本方針に則って個人情報を利用することをお客様が許諾したものとします。</p>
+      <ul>
+        <li>お客様からお預かりしたお品物に関してのご確認やご連絡のため。</li>
+        <li>お客様へ仕上がったお品物のご確認やご連絡のため。</li>
+        <li>お客様へ電話、郵送、e-mailによるキャンペーン等のご案内のため。ただしこれらはお客様のご要望でいつでも中止することができます。</li>
+        <li>クリーニングのマーケティング、販売促進、およびサービス改善のため。</li>
+        <li>クリーニングに関するお客様のご要望、お問い合わせに対するご回答などを行うため。</li>
+      </ul>
+      <h2>個人情報の第三者提供</h2>
+      <p>当社は、法令に基づく場合等正当な理由によらない限り、事前に本人の同意を得ることなく、個人情報を第三者に開示・提供することはありません。</p>
+      <h2>個人情報の管理</h2>
+      <p>当社は、個人情報の漏洩、滅失、毀損等を防止するために、個人情報保護管理責任者を設置し、十分な安全保護に努め、また、個人情報を正確に、また最新なものに保つよう、お預かりした個人情報の適切な管理を行います。</p>
+      <h2>情報内容の照会、修正または削除</h2>
+      <p>当社は、お客様が当社にご提供いただいた個人情報の照会、修正または削除を希望される場合は、ご本人であることを確認させていただいたうえで、合理的な範囲ですみやかに対応させていただきます。</p>
+      <h2>継続的改善について</h2>
+      <p>当社は、個人情報の取扱いに関する社会環境の変化に対応し、必要に応じて本方針をはじめとする社内規定を見直し、継続的な改善を図り、常に最良の状態を維持していきます。</p>
+      <h2>お問い合わせ</h2>
+      <p>当社の個人情報の取扱いについては、<a href="/contact/">お問い合わせフォーム</a>よりお問い合わせください。</p>
+      <p class="sign">2010年3月10日制定<br>2019年6月16日改定<br>有限会社シティー・ライフ</p>
+    </div>
+  </div>
+</section>
+
 <!-- ============ STORE DETAIL (#store-<slug>) ============ -->
 <section class="page" id="page-store" data-name="store" hidden><div id="storeDetail"></div></section>
 
@@ -969,6 +1009,7 @@ window.DBG=(function(){
           </div>
           <div class="field"><label for="f-msg">内容<i>必須</i></label><textarea id="f-msg" name="message" placeholder="例）白いブラウスの袖口に赤ワインのしみがあります。落とせますか？"></textarea></div>
           <p class="err" id="formErr" hidden></p>
+          <p class="note" style="margin-top:0">送信前に<a href="/policy/">プライバシーポリシー</a>をご確認ください。</p>
           <div><button class="btn" type="submit">内容を確認して送信</button></div>
           <div class="sent" id="formSent" hidden></div>
         </form>
@@ -1021,7 +1062,7 @@ window.DBG=(function(){
     </div>
     <nav>
       <a href="/">トップ</a><a href="/about/">私たちについて</a><a href="/price/">料金</a><a href="/news/">お知らせ</a><a href="/tenpo/">店舗情報</a><a href="/contact/">お問い合わせ</a>
-      <a href="/contact/" data-go="qa">Q&amp;A</a><a href="/price/" data-go="cat-recall">賠償基準</a>
+      <a href="/contact/" data-go="qa">Q&amp;A</a><a href="/price/" data-go="cat-recall">賠償基準</a><a href="/policy/">プライバシーポリシー</a>
       <a href="https://liff.line.me/1645278921-kWRPP32q/?accountId=001nioss" target="_blank" rel="noopener">LINE</a>
     </nav>
     <p class="sample">© 有限会社シティー・ライフ</p>
@@ -1116,14 +1157,15 @@ const QA = [
 ];
 
 /* URLs follow the old WordPress site (/tenpo/<slug>/, /contact/) so links and search rankings carry over */
-const ROUTES = {top:'/', about:'/about/', price:'/price/', news:'/news/', stores:'/tenpo/', contact:'/contact/'};
+const ROUTES = {top:'/', about:'/about/', price:'/price/', news:'/news/', stores:'/tenpo/', contact:'/contact/', policy:'/policy/'};
 const PAGE_META = {
   top:['おしゃれ倶楽部｜海老名・藤沢・厚木・座間・大和のクリーニング店・しみ抜き', '神奈川県の海老名・藤沢・厚木・座間・大和に11店舗のクリーニング店、おしゃれ倶楽部。年間1万件以上のしみ抜き、汗抜き加工、はっ水加工、ダウンの水洗いまで。料金一覧・店舗の営業時間はこちら。'],
   about:['私たちについて｜おしゃれ倶楽部', 'おしゃれ倶楽部のしみ抜き・洗い・仕上げへのこだわりと会社概要。年間1万件以上のしみ抜きに、専門スタッフが対応しています。'],
   price:['クリーニング料金一覧｜おしゃれ倶楽部', 'Ｙシャツ¥220から。おしゃれ倶楽部のクリーニング料金一覧（税込・税抜）。しみ抜き・黄ばみ取り・ダウンの特選水洗いコース・賠償基準も掲載しています。'],
   news:['お知らせ｜おしゃれ倶楽部', 'おしゃれ倶楽部の休業日・営業時間の変更など、店舗からのお知らせです。'],
   stores:['店舗情報｜海老名・藤沢・厚木・座間・大和のクリーニング店｜おしゃれ倶楽部', '海老名・藤沢・厚木・座間・大和にあるおしゃれ倶楽部全11店舗の住所・電話番号・営業時間・定休日。'],
-  contact:['お問い合わせ・よくあるご質問｜おしゃれ倶楽部', 'おしゃれ倶楽部へのお問い合わせと、クリーニング・しみ抜きについてのよくあるご質問。']
+  contact:['お問い合わせ・よくあるご質問｜おしゃれ倶楽部', 'おしゃれ倶楽部へのお問い合わせと、クリーニング・しみ抜きについてのよくあるご質問。'],
+  policy:['プライバシーポリシー｜おしゃれ倶楽部', 'おしゃれ倶楽部（有限会社シティー・ライフ）の個人情報の取扱いについて。']
 };
 function storeMeta(s){ return [s.name+'｜'+s.city+'のクリーニング店｜おしゃれ倶楽部', 'おしゃれ倶楽部 '+s.name+'（'+s.city+'）の住所・電話番号・営業時間。〒'+s.zip+' '+s.addr+'。TEL '+s.tel+'。定休日：'+s.offText+'。しみ抜き・汗抜き加工・はっ水加工も承ります。']; }
 /* ---------------- end of data ---------------- */

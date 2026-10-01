@@ -55,7 +55,7 @@ const crumbs = list => ({
 const FAQ = { '@type': 'FAQPage', mainEntity: QA.map(q => ({ '@type': 'Question', name: q[0], acceptedAnswer: { '@type': 'Answer', text: q[1].join('\n') } })) };
 
 /* ---------- pages ---------- */
-const NAV_NAME = { about: '私たちについて', price: '料金', news: 'お知らせ', stores: '店舗情報', contact: 'お問い合わせ' };
+const NAV_NAME = { about: '私たちについて', price: '料金', news: 'お知らせ', stores: '店舗情報', contact: 'お問い合わせ', policy: 'プライバシーポリシー' };
 const pages = Object.keys(ROUTES).map(page => {
   const url = ROUTES[page];
   const graph = page === 'top' ? [WEBSITE, ORG].concat(STORES.map(storeLd))

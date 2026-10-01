@@ -1,17 +1,20 @@
 # 旧サイト（WordPress・www.osyareclub.com）から新サイトへの引っ越し用リダイレクト（301＝恒久的な移転）
-# /tenpo/ と /tenpo/<店舗>/ 、/contact/ は旧サイトと同じURLなので転送は不要です。
+# 旧サイトの sitemap.xml（2026-10-01取得・36URL）をもとに作成。
+# /、/tenpo/、/tenpo/<店舗>/（11店舗）、/contact/、/policy/ は旧サイトと同じURLなので転送不要です。
 
-/gaiyou       /about/              301
-/shiminuki    /about/              301
-/option       /about/              301
-/tokushu      /                    301
-/qanda        /contact/#qa         301
-/baishou      /price/#cat-recall   301
-/category/*   /news/               301
+/gaiyou          /about/              301
+/shiminuki       /about/              301
+/option          /about/              301
+/tokushu         /                    301
+/qanda           /contact/#qa         301
+/baishou         /price/#cat-recall   301
+/contact/thanks  /contact/            301
 
-# 旧サイトのお知らせ記事（WordPressの ?p=123 形式）
-/  p=:id      /news/               301
-/  page_id=:id  /                  301
+# お知らせ（記事 /info/post_1343/ など12件、一覧 /category/info/）
+/info/*          /news/               301
+/category/*      /news/               301
+/author/*        /                    301
 
-# TODO: 旧サイトの全URL一覧（サーバー側の sitemap.xml）を入手したら、
-#       記事ページ・料金表PDFなどの個別URLをここに追記する
+# WordPressの短縮URL（?p=123 / ?page_id=123）
+/  p=:id         /news/               301
+/  page_id=:id   /                    301
