@@ -36,6 +36,7 @@ const ORG = {
   url: SITE + '/', logo: SITE + '/images/logo.png', telephone: '0467-70-8988', faxNumber: '0467-70-8990',
   email: 'cl@mj-group.co.jp', foundingDate: '1990-03',
   address: { '@type': 'PostalAddress', postalCode: '252-1123', addressCountry: 'JP', addressRegion: '神奈川県', addressLocality: '綾瀬市', streetAddress: '早川2687番地' },
+  areaServed: ['座間市', '綾瀬市', '海老名市', '厚木市', '大和市', '藤沢市'].map(c => ({ '@type': 'City', name: c })),
   sameAs: [LINE_URL]
 };
 const WEBSITE = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: 'おしゃれ倶楽部', inLanguage: 'ja', publisher: { '@id': SITE + '/#org' } };
