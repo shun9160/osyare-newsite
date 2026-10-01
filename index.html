@@ -4,13 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#FAF9F7">
-<meta property="og:title" content="おしゃれ倶楽部">
-<meta property="og:description" content="神奈川県の海老名・藤沢・厚木・座間・大和に11店舗のクリーニング店、おしゃれ倶楽部。">
+<title>おしゃれ倶楽部｜海老名・藤沢・厚木・座間・大和のクリーニング店・しみ抜き</title>
+<meta name="description" content="神奈川県の海老名・藤沢・厚木・座間・大和に11店舗のクリーニング店、おしゃれ倶楽部。年間1万件以上のしみ抜き、汗抜き加工、はっ水加工、ダウンの水洗いまで。料金一覧・店舗の営業時間はこちら。">
+<link rel="canonical" href="https://osyare-club.netlify.app/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:site_name" content="おしゃれ倶楽部">
+<meta property="og:title" content="おしゃれ倶楽部｜海老名・藤沢・厚木・座間・大和のクリーニング店・しみ抜き">
+<meta property="og:description" content="神奈川県の海老名・藤沢・厚木・座間・大和に11店舗のクリーニング店、おしゃれ倶楽部。年間1万件以上のしみ抜きに対応しています。">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://osyare-club.netlify.app/">
+<meta property="og:image" content="https://osyare-club.netlify.app/images/logo.png">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary">
 <link rel="icon" type="image/png" href="images/logo.png">
 <link rel="apple-touch-icon" href="images/logo.png">
-<title>おしゃれ倶楽部</title>
-<meta name="description" content="神奈川県の海老名・藤沢・厚木・座間・大和に11店舗のクリーニング店、おしゃれ倶楽部。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
@@ -1108,17 +1115,66 @@ const QA = [
   ['衣類に嘔吐物・血液が付いてしまってもクリーニングしてもらえますか？', ['感染や衛生面を考え、嘔吐物や血液が付着した衣類は通常のクリーニングではお受けしていません。万が一の場合は、タオルなどである程度拭き取ってから、特殊しみ抜きコースをご指定ください。']]
 ];
 
+/* ---------------- structured data (schema.org) ---------------- */
+(function(){
+  const SITE = 'https://osyare-club.netlify.app/';
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const t = h => String(Math.floor(h)).padStart(2,'0')+':'+(h%1?'30':'00');
+  const hours = s => {
+    const by = {};
+    DAYS.forEach((day,d) => {
+      if(s.closed.includes(d)) return;
+      const r = d===0 ? s.sun : d===6 ? s.sat : s.wk, k = t(r[0])+'-'+t(r[1]);
+      (by[k] = by[k] || []).push(day);
+    });
+    return Object.keys(by).map(k => ({'@type':'OpeningHoursSpecification', dayOfWeek:by[k], opens:k.split('-')[0], closes:k.split('-')[1]}));
+  };
+  const org = {
+    '@type':'Organization', '@id':SITE+'#org', name:'おしゃれ倶楽部', legalName:'有限会社シティー・ライフ',
+    url:SITE, logo:SITE+'images/logo.png', telephone:'0467-70-8988', faxNumber:'0467-70-8990', email:'cl@mj-group.co.jp', foundingDate:'1990-03',
+    address:{'@type':'PostalAddress', postalCode:'252-1123', addressCountry:'JP', addressRegion:'神奈川県', addressLocality:'綾瀬市', streetAddress:'早川2687番地'},
+    sameAs:[LINE_URL]
+  };
+  const stores = STORES.map(s => {
+    const rest = s.addr.replace(/^神奈川県/,'');
+    const city = s.city;
+    return {
+      '@type':'DryCleaningOrLaundry', '@id':SITE+'#store-'+s.slug, name:'おしゃれ倶楽部 '+s.name,
+      url:SITE+'#store-'+s.slug, image:SITE+'images/logo.png', telephone:s.tel, priceRange:'¥220〜',
+      address:{'@type':'PostalAddress', postalCode:s.zip, addressCountry:'JP', addressRegion:'神奈川県', addressLocality:city, streetAddress:rest.replace(city,'')},
+      openingHoursSpecification:hours(s), parentOrganization:{'@id':SITE+'#org'}, areaServed:city
+    };
+  });
+  const site = {'@type':'WebSite', '@id':SITE+'#website', url:SITE, name:'おしゃれ倶楽部', inLanguage:'ja', publisher:{'@id':SITE+'#org'}};
+  const faq = {'@type':'FAQPage', mainEntity:QA.map(q => ({'@type':'Question', name:q[0], acceptedAnswer:{'@type':'Answer', text:q[1].join('\n')}}))};
+  const el = document.createElement('script');
+  el.type = 'application/ld+json';
+  el.textContent = JSON.stringify({'@context':'https://schema.org', '@graph':[site, org].concat(stores, faq)});
+  document.head.appendChild(el);
+})();
+
 /* ---------------- router ---------------- */
 const pages = ['top','about','price','news','stores','contact'];
 let pendingAnchor = null;
 const BASE_TITLE = document.title;
+const metaDesc = document.querySelector('meta[name="description"]');
+const BASE_DESC = metaDesc.content;
+const PAGE_META = {
+  top:[BASE_TITLE, BASE_DESC],
+  about:['私たちについて｜おしゃれ倶楽部', 'おしゃれ倶楽部のしみ抜き・洗い・仕上げへのこだわりと会社概要。年間1万件以上のしみ抜きに、専門スタッフが対応しています。'],
+  price:['クリーニング料金一覧｜おしゃれ倶楽部', 'Ｙシャツ¥220から。おしゃれ倶楽部のクリーニング料金一覧（税込・税抜）。しみ抜き・黄ばみ取り・ダウンの特選水洗いコース・賠償基準も掲載しています。'],
+  news:['お知らせ｜おしゃれ倶楽部', 'おしゃれ倶楽部の休業日・営業時間の変更など、店舗からのお知らせです。'],
+  stores:['店舗情報｜海老名・藤沢・厚木・座間・大和のクリーニング店｜おしゃれ倶楽部', '海老名・藤沢・厚木・座間・大和にあるおしゃれ倶楽部全11店舗の住所・電話番号・営業時間・定休日。'],
+  contact:['お問い合わせ・よくあるご質問｜おしゃれ倶楽部', 'おしゃれ倶楽部へのお問い合わせと、クリーニング・しみ抜きについてのよくあるご質問。']
+};
+function setMeta(title, desc){ document.title = title; metaDesc.content = desc; }
 function route(){
   let h = (location.hash||'').replace('#','') || 'top';
   let navPage = h;
   const sm = h.match(/^store-([a-z]+)$/);
   if(sm && STORES.some(x=>x.slug===sm[1])){ renderStoreDetail(sm[1]); h='store'; navPage='stores'; }
   else if(!pages.includes(h)) h='top';
-  if(h!=='store') document.title = BASE_TITLE;
+  if(h!=='store') setMeta(PAGE_META[h][0], PAGE_META[h][1]);
   pages.concat('store').forEach(p => { $('#page-'+p).hidden = (p!==h); });
   document.querySelectorAll('.nav a').forEach(a => a.removeAttribute('aria-current'));
   const cur = document.querySelector('.nav a[data-page="'+(h==='store'?navPage:h)+'"]'); if(cur) cur.setAttribute('aria-current','page');
@@ -1335,7 +1391,7 @@ function storeCard(s,i){
 /* store detail page */
 function renderStoreDetail(slug){
   const s=STORES.find(x=>x.slug===slug); if(!s) return;
-  document.title = s.name+'｜おしゃれ倶楽部';
+  setMeta(s.name+'｜'+s.city+'のクリーニング店｜おしゃれ倶楽部', 'おしゃれ倶楽部 '+s.name+'（'+s.city+'）の住所・電話番号・営業時間。〒'+s.zip+' '+s.addr+'。TEL '+s.tel+'。定休日：'+s.offText+'。しみ抜き・汗抜き加工・はっ水加工も承ります。');
   const now=new Date(), d=now.getDay(), r=d===0?s.sun:d===6?s.sat:s.wk;
   const fmt=h=>Math.floor(h)+':'+(h%1?'30':'00');
   const today = s.closed.includes(d) ? '本日は定休日です' : '本日の営業 '+fmt(r[0])+'〜'+fmt(r[1]);
