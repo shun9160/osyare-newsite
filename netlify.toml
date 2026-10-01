@@ -1,5 +1,6 @@
 [build]
-  publish = "."
+  command = "node build.js"
+  publish = "dist"
 
 [[headers]]
   for = "/images/*"
